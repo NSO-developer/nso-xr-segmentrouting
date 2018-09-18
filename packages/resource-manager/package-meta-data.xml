@@ -1,0 +1,27 @@
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+    <name>resource-manager</name>
+    <package-version>3.3.0</package-version>
+    <description>Resource manager package</description>
+    <ncs-min-version>4.2</ncs-min-version>
+
+    <component>
+        <name>Reactive fastmap id allocation</name>
+        <application>
+            <java-class-name>com.tailf.pkg.idallocator.IdAllocator</java-class-name>
+        </application>
+    </component>
+
+    <component>
+        <name>Reactive fastmap IP address allocation</name>
+        <application>
+            <java-class-name>com.tailf.pkg.ipaddressallocator.IPAddressAllocator</java-class-name>
+        </application>
+    </component>
+
+    <component>
+        <name>Address allocation IP validation</name>
+        <callback>
+            <java-class-name>com.tailf.pkg.ipaddressallocator.IPValidator</java-class-name>
+        </callback>
+    </component>
+</ncs-package>

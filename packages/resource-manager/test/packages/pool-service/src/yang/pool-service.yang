@@ -1,0 +1,64 @@
+module pool-service {
+
+  namespace "http://example.com/pool-service";
+  prefix pool-service;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-common {
+    prefix tailf;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  description
+    "Create an IP pool for another service to allocate from..";
+
+  revision 2016-01-01 {
+    description
+      "Initial revision.";
+  }
+
+  augment /ncs:services {
+
+    list pool-service {
+      description "This is an RFS skeleton service";
+      
+      key name;
+      leaf name {
+        tailf:info "Unique service id";
+      tailf:cli-allow-range;
+        type string;
+      }
+      
+      uses ncs:service-data;
+      ncs:servicepoint pool-service-servicepoint;
+      
+      leaf dummy-name-for-redeploy {
+        type string;
+      }
+      
+      leaf allocated {
+        type boolean;
+        default "false";
+      }
+      
+      list subnet {
+        key "address cidrmask";
+        tailf:cli-suppress-mode;
+        min-elements "1";
+        description
+          "Are actaully hardcoded in the implementation code.";
+        leaf address {
+          type inet:ip-address;
+        }
+        
+        leaf cidrmask {
+          type uint8;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+module sr {
+    namespace "http://cisco.com/tailf/sr";
+    prefix sr;
+
+    import ietf-inet-types {
+      prefix inet;
+    }
+
+     import tailf-ncs {
+      prefix ncs;
+    }
+
+    import tailf-common {
+      prefix tailf;
+    }
+
+    import cf-common {
+      prefix cfcommon;
+    }
+
+ organization "Cisco Network Services orchestrator";
+  description "This yang defines Segement Routing Model that needs to be configured on the P Routers for Segment Routing. Segment Routing focuses on the CORE of the network, thus configuring the P Routers. i.e. Providers Routers. Basic elements of the configuration are configuring a unique prefix-sid id on each of the P Routers under each router isis or igp section that has a dedicated loopback. ";
+
+
+  revision 2018-07-23 {
+    description
+    "Added more flexibility to pick custom prefix sid and custom instance name along with loopback for each device, while also providing a way to use a common instance name/loopback that is same across devices." ;
+  }
+
+  revision 2018-06-30 {
+    description
+   "This yang defines Segement Routing Model that needs to be configured on the P Routers for Segment Routing.";
+  }
+
+    augment /ncs:services {
+
+      list sr {
+       description "A List of User Defined Services for Segment Routing Configuration. These services could help differentaite across differnet zones,states or geological boundaries.";
+       tailf:info "A List of User Defined Services for Segment Routing Configuration. These services could help differentaite across differnet zones,states or geological boundaries.";
+       uses ncs:service-data;
+       ncs:servicepoint "sr-servicepoint";
+       key "name";
+    	  leaf name {
+      	  description  "User Facing Segment-Routing Service Name";
+     	  tailf:info "User Facing Segment-Routing Service Name";
+      	  type string;
+      	}
+
+	list router {
+            tailf:info "Core P Router Device Node List";
+      	    key device-name;
+ 	    leaf device-name{
+	    tailf:info "Pick a Core P Router to be configured";
+              type leafref {
+                 path "/ncs:devices/ncs:device/ncs:name";
+              }
+           }
+
+	   uses cfcommon:prefix-choice-grouping;
+           uses cfcommon:instance-choice-grouping;
+	   uses cfcommon:sr-mpls-choice;
+	}
+     }
+   }
+}
+

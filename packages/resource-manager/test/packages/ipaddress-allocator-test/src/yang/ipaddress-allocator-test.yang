@@ -1,0 +1,47 @@
+module ipaddress-allocator-test {
+  namespace "http://com/cisco/yang/ipaddressallocatortest";
+  prefix ipaddress-allocator-test;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-common {
+    prefix tailf;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  augment /ncs:services {
+
+    list ipaddress-allocator-test {
+      key name;
+      description "This is a test service for ipaddress-allocator";
+
+      ncs:servicepoint ipaddress-allocator-test-servicepoint;
+
+      leaf name {
+        tailf:info "Unique service id";
+        tailf:cli-allow-range;
+        type string;
+      }
+
+      leaf subnet-size {
+        tailf:info "Prefix length of subnet to be allocated";
+        type uint8;
+      }
+
+      leaf allocated {
+        type empty;
+        config false;
+      }
+
+      leaf deploys {
+        type uint32;
+        config false;
+      }
+
+      uses ncs:service-data;
+    }
+  }
+}

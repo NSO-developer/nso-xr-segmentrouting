@@ -1,0 +1,20 @@
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+  <name>ipaddress-allocator-test</name>
+  <package-version>1.0</package-version>
+  <description>Test package for ipaddress-allocator</description>
+  <ncs-min-version>3.0</ncs-min-version>
+
+  <!-- It's possible to add more components to the -->
+  <!-- same package, multiple services, data providers etc -->
+
+  <required-package>
+    <name>resource-manager</name>
+  </required-package>
+
+  <component>
+    <name>IP Address Allocator test service</name>
+    <callback>
+      <java-class-name>com.tailf.pkg.ipaddressallocatortest.IPAddressAllocatorTest</java-class-name>
+    </callback>
+  </component>
+</ncs-package>

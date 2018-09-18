@@ -1,0 +1,70 @@
+[doc "Test of re-deploy for ipaddress allocator"]
+
+[config require=NCS_DIR]
+
+[include ../../../luxinc/resource-manager.luxinc]
+
+[global TEST_NCS_DIR=$DIR/../../../../../ncs]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    [timeout 30]
+    -$fail_pattern
+    [invoke ncs-cli-config-c]
+
+    !load merge $DIR/../cli/subnet8.cli
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke log "Allocate subnet of size 24"]
+    -Aborted
+    !service ipaddress-allocator-test test subnet-size 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+    [invoke wait-for-ncs-cmd-cfg "do show services ipaddress-allocator-test test allocated" "^allocated$"]
+
+    [invoke log "Exclude this subnet"]
+    !resource-pools ip-address-pool mypool exclude 10.0.0.0 9
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    # The allocation will be moved to one of the remaining subnets and the service is redeployed
+    [invoke wait-for-ncs-cmd-cfg "do show services ipaddress-allocator-test test deploys" "deploys 3"]
+    [invoke wait-for-ncs-cmd-cfg "do show services ipaddress-allocator-test test allocated" "^allocated$"]
+    # Ideally we would like to look at /services/...{test}/private/re-deploy-counter
+    # but it is not readable with the current ncs_load tool.
+
+    [invoke log "Allocate another subnet with the same owner"]
+    !resource-pools ip-address-pool mypool allocation test2 allocating-service "/services/ipaddress-allocator-test[name='test']" username admin request subnet-size 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "do show services ipaddress-allocator-test test deploys" "deploys 4"]
+
+    [invoke log "Exclude everything"]
+    !resource-pools ip-address-pool mypool exclude 10.128.0.0 9
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "do show services ipaddress-allocator-test test deploys" "deploys 5"]
+    [invoke wait-for-ncs-cmd-cfg "do show services ipaddress-allocator-test test allocated" "No entries found."]
+
+    [invoke log "Remove all excludes"]
+    !no resource-pools ip-address-pool mypool exclude
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    # The two previously failed IPs should now be reallocated
+    [invoke wait-for-ncs-cmd-cfg "do show services ipaddress-allocator-test test allocated" "^allocated$"]
+    [sleep 1]
+    # There should only be one redeploy even though two allocations were made
+    [invoke wait-for-ncs-cmd-cfg "do show services ipaddress-allocator-test test deploys" "deploys 6"]
+
+[shell jvm-log-check]
+    [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

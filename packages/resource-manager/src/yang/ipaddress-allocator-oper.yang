@@ -1,0 +1,123 @@
+module ipaddress-allocator-oper {
+
+  namespace "http://tail-f.com/pkg/ipaddress-allocator-oper";
+
+  prefix ipalloc-oper;
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  import resource-allocator {
+    prefix ralloc;
+  }
+
+  import ipaddress-allocator {
+    prefix idalloc;
+  }
+
+  organization "Tail-f Systems";
+  description
+     "This module contains the operational schema of the ipaddress-allocator package.";
+
+  revision 2015-10-20 {
+     description "Initial revision.";
+  }
+
+  // This is the ip-allocator operational schema structure
+  container ip-allocator {
+    config false;
+
+    tailf:cdb-oper {
+      tailf:persistent true;
+    }
+
+    list pool {
+      key name;
+
+      leaf name {
+        type string;
+      }
+
+      list subnet {
+        key "address cidrmask";
+        tailf:cli-suppress-mode;
+        min-elements "1";
+        description
+          "Copy of configured subnets. Needed to know when subnets
+           have been added/removed.";
+
+        leaf address {
+          type inet:ip-address;
+        }
+
+        leaf cidrmask {
+          type uint8;
+        }
+      }
+
+      list exclude {
+        key "address cidrmask";
+        tailf:cli-suppress-mode;
+        min-elements "1";
+        description
+          "Copy of excluded subnets. Needed to know when exclustion
+           has been added/removed.";
+
+        leaf address {
+          type inet:ip-address;
+        }
+
+        leaf cidrmask {
+          type uint8;
+        }
+      }
+
+      list available {
+        key "address cidrmask";
+        tailf:cli-suppress-mode;
+        description
+          "Free subnets available for allocation.";
+
+        leaf address {
+          type inet:ip-address;
+        }
+
+        leaf cidrmask {
+          type uint8;
+        }
+      }
+
+      list allocation {
+        key "address cidrmask";
+        tailf:cli-suppress-mode;
+        description
+          "Allocated subnets.";
+
+        leaf address {
+          type inet:ip-address;
+        }
+
+        leaf cidrmask {
+          type uint8;
+        }
+
+        leaf owner {
+          type string;
+        }
+
+        leaf username {
+          type string;
+        }
+
+        leaf request-id {
+          type string;
+        }
+      }
+    }
+  }
+}

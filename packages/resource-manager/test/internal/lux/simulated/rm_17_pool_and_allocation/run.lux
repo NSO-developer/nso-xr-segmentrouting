@@ -1,0 +1,83 @@
+[doc "Test that no exception is thrown when checking for ready state"]
+
+[include ../../luxinc/resource-manager.luxinc]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli-config]
+
+    !set java-vm java-logging logger com.tailf.pkg.idallocator level level-debug
+    ?$NCS_PROMPT_CONF
+    !set java-vm java-logging logger com.tailf.pkg.ipaddressallocator level level-debug
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    [invoke sync-from-device-cfg]
+
+[shell log]
+    -com.tailf.pkg.resourcemanager.ResourceErrorException
+    [timeout 240]
+    !tail -F ${TEST_NCS_DIR}/logs/ncs-java-vm.log
+
+[shell cli]
+    [invoke log "Checking that exception is not thrown for ID pool"]
+
+    !set resource-pools id-pool test-id range start 1 end 10
+    ?$NCS_PROMPT_CONF
+    !set services id-loop test-id device cisco-ios0 pool test-id unit 4 description test-id
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !run show status resource-pools
+    """??
+    id-pool test-id {
+        allocation test-id {
+            response {
+                id 1;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete service id-loop test-id
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools id-pool test-id
+    ?$NCS_PROMPT_CONF
+
+[shell log]
+    ?Checking response ready for missing id pool 'test-id'
+
+[shell cli]
+    [invoke log "Checking that exception is not thrown for IP pool"]
+
+    !set resource-pools ip-address-pool test-ip range 10.10.10.1 10.10.10.100
+    ?$NCS_PROMPT_CONF
+    !set services ip-loop test-ip device cisco-ios0 pool test-ip unit 4 description test-ip
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !run show status resource-pools
+    """??
+    ip-address-pool test-ip {
+        allocation test-ip {
+            response {
+                subnet 10.10.10.1/32;
+                from   10.10.10.1/32;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+[shell log]
+    ?Checking response ready for missing ip address pool 'test-ip'
+
+[cleanup]
+    [invoke ncs-cleanup]

@@ -1,0 +1,9 @@
+java-vm java-logging logger com.tailf.pkg.ipaddressallocatortest
+ level level-all
+!
+java-vm java-logging logger com.tailf.pkg.ipaddressallocator
+ level level-all
+!
+java-vm java-logging logger com.tailf.pkg.resourcemanager
+ level level-all
+!

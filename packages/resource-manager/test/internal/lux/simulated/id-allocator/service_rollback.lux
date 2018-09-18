@@ -1,0 +1,103 @@
+[doc "Test rollback for a service using id allocator"]
+
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../luxinc/resource-manager.luxinc]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli]
+    [invoke check-pkgs]
+    [invoke sync-from-device]
+
+    [invoke ncs-enter-config]
+
+    !set java-vm java-logging logger com.tailf.pkg level level-debug
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    [invoke log "Setup a small pool to work with"]
+    !set resource-pools id-pool management range start 10 end 200
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+    !run show status id-allocator
+    ???pool management {
+    ???available 10 200;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    [invoke log "Use a service that allocates one id"]
+    !set services id-loop l pool management device cisco-ios0 unit 4 description hej
+    ?$NCS_PROMPT_CONF
+    [invoke commit-label set_service]
+    !run show status id-allocator
+    """??
+    pool management {
+        available 11 200;
+        allocation 10;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    [invoke ncs-exit-config]
+
+    !request devices disconnect
+    ?\[ok\]
+    ?$NCS_PROMPT_OPER
+
+    !exit
+    ?SH-PROMPT:
+
+[shell ncs]
+    # We want to find the correct rollback file. It should look like this:
+    # # Created by: admin
+    # # Date: 2016-12-02 14:43:05
+    # # Via: cli
+    # # Type: delta
+    # # Label: set_service
+    # # Comment:
+    # # No: 10006
+
+    # ncs:services {
+    #     delete:
+    #     id-vl:id-loop l;
+    # }
+    !grep "# Label: set_service" $TEST_NCS_DIR/logs/rollback*
+    ?rollback([0-9]*):.*
+    [global set_service_rollback=$1]
+    [invoke log "Use rollback file ${set_service_rollback}"]
+    [timeout 120]
+    [invoke ncs-stop]
+    [invoke netsim-start-all]
+    [invoke ncs-start]
+    [invoke ncs-cli]
+    [invoke connect-device]
+    [invoke sync-from-device]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli-config]
+
+    [invoke log "Rolling back ${set_service_rollback}"]
+    !rollback ${set_service_rollback}
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+    !run show status id-allocator
+    ???pool management {
+    ???available 10 200;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !run show status resource-pools
+    ?id-pool management;
+    ?$NCS_PROMPT_CONF
+
+[cleanup]
+    [invoke ncs-cleanup]

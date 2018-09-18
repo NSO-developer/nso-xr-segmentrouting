@@ -1,0 +1,27 @@
+module infrastructure {
+  namespace "http://cisco.com/ns/tailf/cf-infra";
+  prefix cfinfra;
+
+ import tailf-common {
+    prefix tailf;
+  }
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+  import cf-common {
+    prefix cfcommon;
+  }
+
+   container sr-infrastructure {
+    presence true;
+    description
+      "Infrastructure configuration for the CompassCore, which contains specifics of the infrastructure related to devices and its configurations
+      such as Segment Routing Global Block Ranges and more to come.";
+
+    uses cfcommon:pools-grouping;
+    uses cfcommon:instance-loopback-grouping;
+  }
+} // end of module

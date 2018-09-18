@@ -1,0 +1,102 @@
+module resource-allocator {
+  namespace "http://tail-f.com/pkg/resource-allocator";
+  prefix "ralloc";
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  organization "Tail-f Systems";
+  description
+   "This is an API for resource allocators.
+
+    An allocation request is signaled by creating an entry in the
+    allocation list.
+
+    The response is signaled by writing a value in the response
+    leave(s). The responder is responsible for re-deploying the
+    allocating owner after writing the result in the response
+    leaf.
+
+    We expect a specific allocator package to do the following:
+
+      1. Subscribe to changes in the allocation list and look for
+         create operations.
+      2. Perform the allocation and respond by writing the result
+         into the response leaf, and then invoke the re-deploy
+         action of the service pointed to by the owner leaf.
+
+    Most allocator packages will want to annotate this model with
+    additional pool definition data.";
+
+   revision 2015-10-20 {
+     description
+      "Initial revision.";
+  }
+
+  grouping resource-pool-grouping {
+    leaf name {
+      type string;
+      description
+        "The name of the pool";
+      tailf:info "Unique name for the pool";
+    }
+
+    list allocation {
+      key id;
+
+      leaf id {
+        type string;
+      }
+
+      leaf username {
+        description
+          "Authenticated user for invoking the service";
+        type string;
+        mandatory true;
+      }
+
+      leaf allocating-service {
+        type instance-identifier {
+          require-instance false;
+        }
+        description
+          "Points to the service that owns the resource.";
+        tailf:info "Instance identifier of service that owns resource";
+      }
+
+      container request {
+        description
+          "When creating a request for a resource the
+           implementing package augments here.";
+      }
+
+      container response {
+        config false;
+        tailf:cdb-oper {
+          tailf:persistent true;
+        }
+        choice response-choice {
+          case error {
+            leaf error {
+              type string;
+              description
+                "Text describing why the allocation request failed";
+            }
+          }
+          case ok {
+          }
+        }
+        description
+          "The response to the allocation request.";
+      }
+    }
+  }
+
+  container resource-pools {
+  }
+}

@@ -1,0 +1,12 @@
+<nacm xmlns="urn:ietf:params:xml:ns:yang:ietf-netconf-acm">
+  <rule-list>
+    <name>resource-manager-deny</name>
+    <group>*</group>
+    <rule>
+      <name>resource-manager-deny-rule</name>
+      <path>/ralloc:resource-pools</path>
+      <access-operations>create read update delete</access-operations>
+      <action>deny</action>
+    </rule>
+  </rule-list>
+</nacm>

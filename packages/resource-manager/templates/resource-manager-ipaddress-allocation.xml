@@ -1,0 +1,16 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <resource-pools xmlns="http://tail-f.com/pkg/resource-allocator">
+    <ip-address-pool xmlns="http://tail-f.com/pkg/ipaddress-allocator" tags="merge">
+      <name>{$POOL}</name>
+      <allocation tags="merge">
+        <id>{$ALLOCATIONID}</id>
+        <username>{$USERNAME}</username>
+        <allocating-service xmlns:ncs="http://tail-f.com/ns/ncs">{$SERVICE}</allocating-service>
+        <request>
+          <subnet-size>{$SUBNET_SIZE}</subnet-size>
+          <invert-subnet-size when="{$INVERT}" />
+        </request>
+      </allocation>
+    </ip-address-pool>
+  </resource-pools>
+</config-template>

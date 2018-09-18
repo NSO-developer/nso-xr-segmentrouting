@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="JUnit tests" default="junit" xmlns:jacoco="antlib:org.jacoco.ant">
+
+  <property environment="env"/>
+
+  <path id="classpath.jacoco">
+    <pathelement location="${env.DEV_SUPPORT_HOME}/tools/lib/test/jacocoant.jar"/>
+    <pathelement location="${env.DEV_SUPPORT_HOME}/tools/lib/test/jacocoagent.jar"/>
+  </path>
+
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath refid="classpath.jacoco" />
+  </taskdef>
+
+  <property name="lib" value="../../.." />
+  <property name="classes" value="classes/" />
+  <property name="result.exec.file" location="codecoverage/jacoco.exec" />
+  <property name="ncs.dir" value="${env.NCS_DIR}/java/jar"/>
+
+  <path id="test.classpath">
+    <pathelement location="${classes}" />
+    <pathelement location="${env.DEV_SUPPORT_HOME}/tools/lib/test/junit-4.11.jar"/>
+    <pathelement location="${env.DEV_SUPPORT_HOME}/tools/lib/test/mockito-all-1.9.5.jar"/>
+    <fileset dir="${ncs.dir}">
+      <include name="*.jar"/>
+    </fileset>
+    <fileset dir="${lib}">
+      <include name="**/*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="junit" depends="compile">
+    <mkdir dir="reports"/>
+    <jacoco:coverage destfile="${result.exec.file}">
+      <junit fork="yes" haltonfailure="no" printsummary="yes">
+        <formatter type="xml" usefile="true" />
+        <classpath refid="test.classpath" />
+
+        <batchtest fork="yes" todir="reports/">
+          <fileset dir="classes" includes="**/*.class" />
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
+  </target>
+
+  <target name="compile">
+    <mkdir dir="classes"/>
+    <javac destdir="classes" classpathref="test.classpath" includeantruntime="false">
+      <src path="src"/>
+    </javac>
+  </target>
+
+  <target name="report">
+    <property name="genReportDir" location="reports/html"/>
+    <delete dir="${genReportDir}"/>
+    <mkdir dir="${genReportDir}"/>
+    <junitreport todir="${genReportDir}">
+      <fileset dir="reports">
+        <include name="**/TEST-*.xml"/>
+      </fileset>
+      <report format="frames" todir="${genReportDir}"/>
+    </junitreport>
+  </target>
+
+
+</project>

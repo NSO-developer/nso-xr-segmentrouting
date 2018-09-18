@@ -1,0 +1,45 @@
+module drain {
+    namespace "http://com/example/drain";
+    prefix drain;
+
+    import ietf-inet-types { prefix inet; }
+    import tailf-ncs { prefix ncs; }
+
+    import tailf-common { prefix tailf; }
+
+    import cf-common {
+      prefix cfcommon;
+    }
+
+    augment /ncs:services {
+
+        list drain {
+            key "name";
+
+            uses ncs:service-data;
+            ncs:servicepoint "drain-servicepoint";
+
+            leaf name {
+                tailf:info "Unique service id";
+                tailf:cli-allow-range;
+                type string;
+                 }
+
+
+            list router {
+                key "device-name";
+                tailf:info "Core Node Device List";
+
+                leaf device-name {
+                    tailf:info "Core Node Device name";
+                    mandatory true;
+                    type leafref {
+                        path "/ncs:devices/ncs:device/ncs:name";
+                    }
+                }
+
+                uses cfcommon:instance-name-choice-grouping;
+            }
+        }
+    }
+}

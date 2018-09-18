@@ -1,0 +1,105 @@
+[doc Test of inverted subnet size allocations]
+
+[include ../../../luxinc/resource-manager.luxinc]
+
+[global TEST_NCS_DIR=$DIR/../../../../../ncs]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli-config]
+
+    !set resource-pools ip-address-pool management-ipv4 subnet 10.0.0.0 24
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management-ipv6 subnet 4:3:2:1:: 96
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management-ipv4 {
+        subnet 10.0.0.0 24;
+        available 10.0.0.0 24;
+    }
+    pool management-ipv6 {
+        subnet 4:3:2:1:: 96;
+        available 4:3:2:1:: 96;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools ip-address-pool management-ipv4 allocation a1 username admin request subnet-size 1 invert-subnet-size
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management-ipv6 allocation a1 username admin request subnet-size 1 invert-subnet-size
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management-ipv4 {
+        subnet 10.0.0.0 24;
+        available 10.0.0.2 32;
+        available 10.0.0.3 32;
+        available 10.0.0.4 30;
+        available 10.0.0.8 29;
+        available 10.0.0.16 28;
+        available 10.0.0.32 27;
+        available 10.0.0.64 26;
+        available 10.0.0.128 25;
+        allocation 10.0.0.0 31 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    pool management-ipv6 {
+        subnet 4:3:2:1:: 96;
+        available 4:3:2:1::2 128;
+        available 4:3:2:1::3 128;
+        available 4:3:2:1::4 126;
+        available 4:3:2:1::8 125;
+        available 4:3:2:1::10 124;
+        available 4:3:2:1::20 123;
+        available 4:3:2:1::40 122;
+        available 4:3:2:1::80 121;
+        available 4:3:2:1::100 120;
+        available 4:3:2:1::200 119;
+        available 4:3:2:1::400 118;
+        available 4:3:2:1::800 117;
+        available 4:3:2:1::1000 116;
+        available 4:3:2:1::2000 115;
+        available 4:3:2:1::4000 114;
+        available 4:3:2:1::8000 113;
+        available 4:3:2:1::1:0 112;
+        available 4:3:2:1::2:0 111;
+        available 4:3:2:1::4:0 110;
+        available 4:3:2:1::8:0 109;
+        available 4:3:2:1::10:0 108;
+        available 4:3:2:1::20:0 107;
+        available 4:3:2:1::40:0 106;
+        available 4:3:2:1::80:0 105;
+        available 4:3:2:1::100:0 104;
+        available 4:3:2:1::200:0 103;
+        available 4:3:2:1::400:0 102;
+        available 4:3:2:1::800:0 101;
+        available 4:3:2:1::1000:0 100;
+        available 4:3:2:1::2000:0 99;
+        available 4:3:2:1::4000:0 98;
+        available 4:3:2:1::8000:0 97;
+        allocation 4:3:2:1:: 127 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+[shell jvm-log-check]
+    [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE book [
+<!ENTITY % global SYSTEM "./global.ent">
+%global;
+]>
+
+<book xmlns="http://docbook.org/ns/docbook" version="5.0"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xml:id="resource_manager">
+
+  <info>
+    <title>NSO Resource Manager &rmvsn;</title>
+
+    <copyright>
+      <year>2014</year>
+      <year>2015</year>
+      <year>2016</year>
+      <holder>Cisco Systems, Inc</holder>
+    </copyright>
+
+  </info>
+
+  <xi:include href="resource_manager_intro.xml"/>
+  <xi:include href="resource_manager_idallocator.xml"/>
+  <xi:include href="resource_manager_ipaddressallocator.xml"/>
+  <xi:include href="resource_manager_data_models.xml"/>
+  <xi:include href="resource_manager_references.xml"/>
+</book>

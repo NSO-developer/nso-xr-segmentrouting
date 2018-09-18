@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xml:id="dg.resource_manager.data_models">
+
+  <title>The NSO Resource Manager Data Models</title>
+  <sect1 id="resource-allocator-model">
+    <title>Resource allocator model</title>
+    <para>
+      <example id="RMYANG"><title>Resource allocator YANG Model</title>
+        <programlisting language="yang"><xi:include
+            href="../src/yang/resource-allocator.yang" parse="text"/>
+        </programlisting>
+      </example>
+    </para>
+  </sect1>
+  <sect1 id="id-allocator-model">
+    <title>Id allocator model</title>
+    <para>
+      <example id="IDAYANG"><title>Id allocator YANG Model</title>
+        <programlisting language="yang"><xi:include
+            href="../src/yang/id-allocator.yang" parse="text"/>
+        </programlisting>
+      </example>
+    </para>
+  </sect1>
+  <sect1 id="ipaddress-allocator-model">
+    <title>IP address allocator model</title>
+    <para>
+      <example id="IPAAYANG"><title>IP address allocator YANG Model</title>
+        <programlisting language="yang"><xi:include
+            href="../src/yang/ipaddress-allocator.yang" parse="text"/>
+        </programlisting>
+      </example>
+    </para>
+  </sect1>
+</chapter>
+
+

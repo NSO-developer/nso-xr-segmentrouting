@@ -1,0 +1,7 @@
+@Library("pipeline-lib@master") _
+
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '10')), pipelineTriggers([])])
+
+buildPackage {
+    scm = this.scm
+}

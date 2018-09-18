@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE book [
+<!ENTITY % global SYSTEM "./global.ent">
+%global;
+]>
+
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xml:id="dg.resource_manager.references">
+
+  <title>Resources</title>
+  <sect1>
+    <title>References for further reading</title>
+    <para>NSO Packages chapter in NSO &nsovsn; Administration Guide.</para>
+    <para>The AAA Infrastructure chapter in NSO &nsovsn; Administration Guide.</para>
+  </sect1>
+</chapter>
+
+

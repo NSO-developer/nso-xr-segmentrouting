@@ -1,0 +1,1013 @@
+[doc Test of ipaddress allocator]
+
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../luxinc/resource-manager.luxinc]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli]
+    [invoke check-pkgs]
+    [invoke sync-from-device]
+    [invoke ncs-enter-config]
+
+    !set java-vm java-logging logger com.tailf.pkg level level-debug
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !set resource-pools id-pool orderpool range start 5 end 200
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool orderpool exclude 180 185
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool orderpool exclude 10 15
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool orderpool exclude 45 50
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool orderpool exclude 85 90
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool orderpool exclude 120 125
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool orderpool exclude 18 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool orderpool allocation ord1 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord2 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord3 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord4 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord5 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord6 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord7 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord8 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord9 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord10 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool orderpool allocation ord11 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !commit
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !run show status id-allocator
+    ?pool orderpool {
+    ?exclude 10 15;
+    ?exclude 18 20;
+    ?exclude 45 50;
+    ?exclude 85 90;
+    ?exclude 120 125;
+    ?available 25 44;
+    ?available 51 84;
+    ?available 91 119;
+    ?available 126 179;
+    ?available 186 200;
+    ?allocation 5;
+    ?allocation 6;
+    ?allocation 7;
+    ?allocation 8;
+    ?allocation 9;
+    ?allocation 16;
+    ?allocation 17;
+    ?allocation 21;
+    ?allocation 22;
+    ?allocation 23;
+    ?allocation 24;
+    ?}
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool orderpool
+    ???allocation ord1 {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool orderpool
+    ???allocation ord6 {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool orderpool
+    ???allocation ord11 {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools id-pool orderpool
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+[shell cli]
+    !set resource-pools id-pool management range start 10 end 200
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???available 10 200;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management range start 5 end 150
+    ?$NCS_PROMPT_CONF
+    !commit
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    !run show status id-allocator
+    ???pool management {
+    ???available 5 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management exclude 8 30
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ???available 5 7;
+    ???available 31 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management allocation a1 username admin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ?available 6 7;
+    ?available 31 150;
+    ?allocation 5
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool management
+    ???allocation a1 {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+
+    !rollback
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ???available 5 7;
+    ???available 31 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !rollback
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ?available 6 7;
+    ?available 31 150;
+    ?allocation 5
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management range start 40 end 200
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ???available 41 200;
+    ???allocation 40
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    ???id-pool management {
+    ???allocation a1 {
+    ???response {
+    ???id 40;
+    ???}
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management allocation a2 username admin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ???available 42 200;
+    ???allocation 40
+    ???allocation 41
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    ???id-pool management {
+    ???allocation a1 {
+    ???response {
+    ???id 40;
+    ???}
+    ???}
+    ???allocation a2 {
+    ???response {
+    ???id 41;
+    ???}
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool management
+    ???allocation a2 {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management exclude 20 88
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ???exclude 20 88;
+    ???available 91 200;
+    ???allocation 89
+    ???allocation 90
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    ???id-pool management {
+    ???allocation a1 {
+    ???response {
+    ???id 89;
+    ???}
+    ???}
+    ???allocation a2 {
+    ???response {
+    ???id 90;
+    ???}
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    [invoke sync-from-device-cfg]
+
+    !set services id-loop l pool management device cisco-ios0 unit 4 description hej
+    ?$NCS_PROMPT_CONF
+    [invoke commit-label set_service]
+
+    !run show status id-allocator
+    """??
+    pool management {
+        exclude 8 30;
+        exclude 20 88;
+        available 92 200;
+        allocation 89;
+        allocation 90;
+        allocation 91;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    [invoke ncs-exit-config]
+    !exit
+    ?SH-PROMPT:
+
+[shell ncs]
+    [timeout 120]
+    [invoke ncs-stop]
+    [invoke netsim-stop-all]
+    # We want to find the correct rollback file. It should look like this:
+    # # Created by: admin
+    # # Date: 2016-12-02 14:43:05
+    # # Via: cli
+    # # Type: delta
+    # # Label: set_service
+    # # Comment:
+    # # No: 10006
+
+    # ncs:services {
+    #     delete:
+    #     id-vl:id-loop l;
+    # }
+    !grep "# Label: set_service" $TEST_NCS_DIR/logs/rollback*
+    ?rollback([0-9]*):.*
+    [global set_service_rollback=$1]
+    [invoke log "Use rollback file ${set_service_rollback}"]
+    [invoke ncs-start]
+    [invoke netsim-start-all]
+    [timeout 10]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli-config]
+    [invoke sync-from-device-cfg]
+
+    !run show status resource-pools
+    ???id-pool management {
+    ???allocation a1 {
+    ???response {
+    ???id 89;
+    ???}
+    ???}
+    ???allocation a2 {
+    ???response {
+    ???id 90;
+    ???}
+    ???}
+    ???allocation l {
+    ???response {
+    ???id 91;
+    ???}
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ???exclude 20 88;
+    ???available 92 200;
+    ???allocation 89;
+    ???allocation 90;
+    ???allocation 91;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !rollback ${set_service_rollback}
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+    #!commit no-out-of-sync-check
+    #?$NCS_PROMPT_CONF
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ???exclude 20 88;
+    ???available 91 200;
+    ???allocation 89;
+    ???allocation 90;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !run show status resource-pools
+    ???id-pool management {
+    ???allocation a1 {
+    ???response {
+    ???id 89;
+    ???}
+    ???}
+    ???allocation a2 {
+    ???response {
+    ???id 90;
+    ???}
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !delete resource-pools id-pool management allocation
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    ???id-pool management;
+    ?$NCS_PROMPT_CONF
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ???exclude 20 88;
+    ???available 89 200;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management range start 5 end 150
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 8 30;
+    ???exclude 20 88;
+    ???available 5 7;
+    ???available 89 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !delete resource-pools id-pool management exclude 8 30
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???exclude 20 88;
+    ???available 5 19;
+    ???available 89 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !delete resource-pools id-pool management exclude 20 88
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???available 5 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool lan1 range start 20 end 200
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan2 range start 30 end 200
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan3 range start 40 end 200
+    ?$NCS_PROMPT_CONF
+    !commit
+    ?$NCS_PROMPT_CONF
+
+    ## Create a new allocation for management
+    #  This is the 1st allocation with allocationId = a, so it should go through
+    !set resource-pools id-pool management allocation a username admin request sync true
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [sleep 2]
+
+    !run show status id-allocator
+    ???pool lan1 {
+    ???available 20 200;
+    ???}
+    ???pool lan2 {
+    ???available 30 200;
+    ???}
+    ???pool lan3 {
+    ???available 40 200;
+    ???}
+    ???pool management {
+    ???available 6 150;
+    ???allocation 5;
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool management
+    ???allocation a {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+
+    ## Create a new allocation for lan1
+    ## However we want allocation a, and that one has been allocated by management and
+    ## has a value of 7. The id-pool lan1 wants from 20 to 200 so this shouldn't match
+    !set resource-pools id-pool lan1 allocation a username admin request sync true
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool lan1 {
+    ???available 20 200;
+    ???}
+    ???pool lan2 {
+    ???available 30 200;
+    ???}
+    ???pool lan3 {
+    ???available 40 200;
+    ???}
+    ???pool management {
+    ???available 6 150;
+    ???allocation 5
+    ???}
+    ?$NCS_PROMPT_CONF
+    -
+    !run show status resource-pools
+    ???id-pool lan1 {
+    ???allocation a {
+    ???response {
+    ???error "com.tailf.pkg.idpool.exceptions.PoolExhaustedException: Requested id (5) not available in pool lan1";
+    ???}
+    ???}
+    ???}
+    ???id-pool lan2;
+    ???id-pool lan3;
+    ???id-pool management {
+    ???allocation a {
+    ???response {
+    ???id 5;
+    ???}
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+    -$fail_pattern
+
+    !delete resource-pools id-pool lan1 allocation a
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool management allocation b username admin
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan1 allocation b username admin request sync true
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan2 allocation b username admin request sync true
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool lan1 {
+    ???available 20 29;
+    ???available 31 200;
+    ???allocation 30;
+    ???}
+    ???pool lan2 {
+    ???available 31 200;
+    ???allocation 30;
+    ???}
+    ???pool lan3 {
+    ???available 40 200;
+    ???}
+    ???pool management {
+    ???available 7 150;
+    ???allocation 5;
+    ???allocation 6;
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    ???id-pool lan1 {
+    ???allocation b {
+    ???response {
+    ???id 30;
+    ???}
+    ???}
+    ???}
+    ???id-pool lan2 {
+    ???allocation b {
+    ???response {
+    ???id 30;
+    ???}
+    ???}
+    ???}
+    ???id-pool lan3;
+    ???id-pool management {
+    ???allocation a {
+    ???response {
+    ???id 5;
+    ???}
+    ???}
+    ???allocation b {
+    ???response {
+    ???id 6;
+    ???}
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool management
+    ???allocation b {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool lan1
+    ???allocation b {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool lan2
+    ???allocation b {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+
+    [invoke rollback]
+    [invoke commit]
+
+    !set resource-pools id-pool lan2 allocation b username admin request sync true
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan3 allocation b username admin request sync true
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    ???id-pool lan1;
+    ???id-pool lan2 {
+    ???allocation b {
+    ???response {
+    ???id 40;
+    ???}
+    ???}
+    ???}
+    ???id-pool lan3 {
+    ???allocation b {
+    ???response {
+    ???id 40;
+    ???}
+    ???}
+    ???}
+    ???id-pool management {
+    ???allocation a {
+    ???response {
+    ???id 5;
+    ???}
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan1 allocation b username admin request sync true
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    ???id-pool lan1 {
+    ???allocation b {
+    ???response {
+    ???id 40;
+    ???}
+    ???}
+    ???}
+    ???id-pool lan2 {
+    ???allocation b {
+    ???response {
+    ???id 40;
+    ???}
+    ???}
+    ???}
+    ???id-pool lan3 {
+    ???allocation b {
+    ???response {
+    ???id 40;
+    ???}
+    ???}
+    ???}
+    ???id-pool management {
+    ???allocation a {
+    ???response {
+    ???id 5;
+    ???}
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show status id-allocator
+    ???pool lan1 {
+    ???available 20 39;
+    ???available 41 200;
+    ???allocation 40;
+    ???}
+    ???pool lan2 {
+    ???available 30 39;
+    ???available 41 200;
+    ???allocation 40;
+    ???}
+    ???pool lan3 {
+    ???available 41 200;
+    ???allocation 40;
+    ???}
+    ???pool management {
+    ???available 6 150;
+    ???allocation 5;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !delete resource-pools id-pool lan1 allocation
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools id-pool lan2 allocation
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools id-pool lan3 allocation
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools id-pool management allocation
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool lan1 {
+    ???available 20 200;
+    ???}
+    ???pool lan2 {
+    ???available 30 200;
+    ???}
+    ???pool lan3 {
+    ???available 40 200;
+    ???}
+    ???pool management {
+    ???available 5 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool lan1 allocation a username admin request id 45
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool lan1 {
+    ???available 20 44;
+    ???available 46 200;
+    ???allocation 45
+    ???}
+    ???pool lan2 {
+    ???available 30 200;
+    ???}
+    ???pool lan3 {
+    ???available 40 200;
+    ???}
+    ???pool management {
+    ???available 5 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan1 allocation a1 username admin request id 77 sync true
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan2 allocation a1 username admin request sync true
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool lan1 {
+    ???available 20 44;
+    ???available 46 76;
+    ???available 78 200;
+    ???allocation 45;
+    ???allocation 77;
+    ???}
+    ???pool lan2 {
+    ???available 30 76;
+    ???available 78 200;
+    ???allocation 77;
+    ???}
+    ???pool lan3 {
+    ???available 40 200;
+    ???}
+    ???pool management {
+    ???available 5 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan3 allocation a1 username admin request sync true
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool lan1 {
+    ???available 20 44;
+    ???available 46 76;
+    ???available 78 200;
+    ???allocation 45;
+    ???allocation 77;
+    ???}
+    ???pool lan2 {
+    ???available 30 76;
+    ???available 78 200;
+    ???allocation 77;
+    ???}
+    ???pool lan3 {
+    ???available 40 76;
+    ???available 78 200;
+    ???allocation 77;
+    ???}
+    ???pool management {
+    ???available 5 150;
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool lan1
+    ???allocation a {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool lan1
+    ???allocation a1 {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool lan2
+    ???allocation a1 {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool lan3
+    ???allocation a1 {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management range end 200
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool management alarms enabled
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool lan1 range end 300
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool lan1 {
+    ???available 20 44;
+    ???available 46 76;
+    ???available 78 300;
+    ???allocation 45;
+    ???allocation 77;
+    ???}
+    ???pool lan2 {
+    ???available 30 76;
+    ???available 78 200;
+    ???allocation 77;
+    ???}
+    ???pool lan3 {
+    ???available 40 76;
+    ???available 78 200;
+    ???allocation 77;
+    ???}
+    ???pool management {
+    ???available 5 200;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management allocation x username admin
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool management allocation y username admin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools id-pool management
+    ???allocation x {
+    ???response {
+    ???id 5;
+    ???}
+    ???}
+    ???allocation y {
+    ???response {
+    ???id 6;
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool management range start 5 end 5
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "run show alarms alarm-list alarm ncs id-pool-exhausted management \"\" is-cleared" "is-cleared false"]
+
+    !run show status resource-pools id-pool management
+    ???allocation x {
+    ???response {
+    ???id 5;
+    ???}
+    ???}
+    ???allocation y {
+    ???response {
+    ???error "com.tailf.pkg.idpool.exceptions.PoolExhaustedException: ID pool management exhausted";
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+    -$fail_pattern
+    !set resource-pools id-pool management range start 10 end 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools id-pool management
+    ???allocation x {
+    ???response {
+    ???id 10;
+    ???}
+    ???}
+    ???allocation y {
+    ???response {
+    ???id 11;
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+    !run show config resource-pools id-pool management
+    ???allocation x {
+    ???username admin;
+    ???allocation y {
+    ???username admin;
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool management allocation outofbonds username admin request id 9
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools id-pool management
+    ???allocation outofbonds {
+    ???response {
+    ???error "com.tailf.pkg.idpool.exceptions.PoolExhaustedException: Requested id (9) not available in pool management";
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool leftRangeTest range start 1 end 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator pool leftRangeTest
+    ?available 1 20;
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool leftRangeTest exclude 1 2
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator pool leftRangeTest
+    """???
+    exclude 1 2;
+    available 3 20;
+    """
+    ?$NCS_PROMPT_CONF
+
+    [doc Test the different allocation methods]
+    !set resource-pool id-pool methodRangeFirst range start 1 end 4
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator pool methodRangeFirst
+    ?available 1 4;
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool methodRangeFirst allocation a username admin request method firstfree
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool methodRangeFirst allocation b username admin request method firstfree
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    # Remove allocation a and do a new allocation, using the default method we
+    # should re-allocate the same id again, i.e. 1
+    !delete resource-pools id-pool methodRangeFirst allocation a
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool methodRangeFirst allocation c username admin request method firstfree
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator pool methodRangeFirst
+    ?available 3 4;
+
+    [doc Test the round robin allocation methods]
+    !set resource-pool id-pool methodRoundRobin range start 1 end 4
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator pool methodRoundRobin
+    ?available 1 4;
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool methodRoundRobin allocation a username admin request method roundrobin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool methodRoundRobin allocation b username admin request method roundrobin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    # Remove allocation a and do a new allocation, using the round robin method
+    # we should not re-allocate the same id again, i.e. 3 instead of 1
+    !delete resource-pools id-pool methodRoundRobin allocation a
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool methodRoundRobin allocation c username admin request method roundrobin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator pool methodRoundRobin
+    ?available 1 1;
+    ?available 4 4;
+    ?allocation 2;
+    ?allocation 3;
+    !set resource-pools id-pool methodRoundRobin allocation d username admin request method roundrobin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator pool methodRoundRobin
+    ?available 1 1;
+    ?allocation 2;
+    ?allocation 3;
+    ?allocation 4;
+    !set resource-pools id-pool methodRoundRobin allocation e username admin request method roundrobin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator pool methodRoundRobin
+    ?allocation 1;
+    ?allocation 2;
+    ?allocation 3;
+    ?allocation 4;
+
+    !exit
+    ?$NCS_PROMPT_OPER
+
+    !exit
+    ?SH-PROMPT:
+    # [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

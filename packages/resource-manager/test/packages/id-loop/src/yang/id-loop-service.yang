@@ -1,0 +1,75 @@
+module id-loop-service {
+  namespace "dummy-id-http://example.com/loop-service";
+  prefix id-vl;
+
+  import tailf-common {
+    prefix tailf;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+  import resource-allocator {
+    prefix ralloc;
+  }
+  import id-allocator {
+    prefix idalloc;
+  }
+
+  description
+    "This service creates a loop iface/unit on all routers
+     in our network. ";
+
+  revision 2013-01-08 {
+    description
+      "Initial revision.";
+  }
+
+  grouping id-loop {
+    leaf name {
+      type string;
+      tailf:info "Unique service id";
+      tailf:cli-allow-range;
+    }
+    leaf device {
+      type leafref {
+        path "/ncs:devices/ncs:device/ncs:name";
+      }
+      mandatory true;
+      tailf:info "Device to enable the loopback interface on";
+    }
+    leaf pool {
+      type leafref {
+        path "/ralloc:resource-pools/idalloc:id-pool/idalloc:name";
+      }
+      mandatory true;
+    }
+    leaf unit {
+      type string {
+        pattern "([0-9\\.])+";
+        tailf:info "<0-2147483647>;;Loopback interface number";
+      }
+      mandatory true;
+      tailf:info "Loopback interface number.";
+    }
+    leaf description {
+      type string;
+      mandatory true;
+    }
+  }
+
+  augment /ncs:services {
+    list id-loop {
+      key "name";
+      uses id-loop;
+      uses ncs:service-data;
+      ncs:servicepoint id-loopspnt;
+    }
+
+    list id-loop-python {
+      key "name";
+      uses id-loop;
+      uses ncs:service-data;
+      ncs:servicepoint id-loopspnt-python;
+    }
+  }
+}

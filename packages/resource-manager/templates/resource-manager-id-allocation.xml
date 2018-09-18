@@ -1,0 +1,16 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <resource-pools xmlns="http://tail-f.com/pkg/resource-allocator">
+    <id-pool xmlns="http://tail-f.com/pkg/id-allocator" tags="nocreate">
+      <name>{$POOL}</name>
+      <allocation tags="merge">
+        <id>{$ALLOCATIONID}</id>
+        <username>{$USERNAME}</username>
+        <allocating-service xmlns:ncs="http://tail-f.com/ns/ncs">{$SERVICE}</allocating-service>
+        <request>
+          <id when="{$REQUESTEDID!='-1'}">{$REQUESTEDID}</id>
+          <sync>{$SYNC}</sync>
+        </request>
+      </allocation>
+    </id-pool>
+  </resource-pools>
+</config-template>

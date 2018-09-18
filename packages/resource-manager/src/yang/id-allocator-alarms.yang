@@ -1,0 +1,33 @@
+submodule id-allocator-alarms {
+  belongs-to id-allocator {
+    prefix idalloc;
+  }
+
+  import tailf-ncs-alarms {
+    prefix al;
+  }
+
+  organization "Cisco";
+
+  revision "2017-02-09" {
+    description "Initial revision";
+  }
+
+  identity id-allocation-alarm {
+    base al:alarm-type;
+    description "Alarms raised by the id allocator package.";
+  }
+
+  identity id-pool-exhausted {
+    base id-allocation-alarm;
+    description
+      "The ID pool is empty";
+  }
+
+  identity id-pool-low-threshold-reached {
+    base id-allocation-alarm;
+    description
+      "The ID pool is running low on available IDs";
+  }
+
+}

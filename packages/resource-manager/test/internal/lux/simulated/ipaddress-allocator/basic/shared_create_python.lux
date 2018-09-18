@@ -1,0 +1,80 @@
+[doc "Test of re-deploy for ipaddress allocator"]
+
+[config skip=NCS_VERSION_CLEAN=4.2.3]
+
+[include ../../../luxinc/resource-manager.luxinc]
+
+[global TEST_NCS_DIR=$DIR/../../../../../ncs]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    [timeout 30]
+    -$fail_pattern
+    [invoke ncs-cli-config-c]
+
+    [invoke log "pool-service creates mypool"]
+    -Aborted
+    [timeout 10]
+    !service pool-service mypool subnet 10.0.0.0 8
+    [invoke commit]
+    !top
+
+    [invoke log "ipaddress-allocator-test allocates in mypool."]
+    !service ipaddress-allocator-test test subnet-size 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "do show services ipaddress-allocator-test test allocated" "^allocated$"]
+
+    # PRE-CONDITION
+    [invoke log "check pre-conditions"]
+    !top
+    !show full-configuration resource-pools ip-address-pool mypool | display service-meta-data
+    ???! Refcount: 2
+    ???! Backpointer: [ /ncs:services/pool-service:pool-service[pool-service:name='mypool'] /ncs:services/ipaddress-allocator-test:ipaddress-allocator-test[ipaddress-allocator-test:name='test'] ]
+    ???resource-pools ip-address-pool mypool
+    ???! Refcount: 1
+    ???! Backpointer: [ /ncs:services/ipaddress-allocator-test:ipaddress-allocator-test[ipaddress-allocator-test:name='test'] ]
+    ???allocation test
+    ???! Refcount: 1
+    ???username           admin
+    ???! Refcount: 1
+    ???allocating-service /services/ipaddress-allocator-test:ipaddress-allocator-test[name='test']
+    ???! Refcount: 1
+    ???request subnet-size 24
+    ???!
+    ???subnet 10.0.0.0 8
+    ???!
+
+    [invoke log "redeploy pool-service"]
+    !top
+    !service pool-service mypool dummy-name-for-redeploy dummyname
+    [invoke commit]
+
+    [invoke log "verify shared create of mypool"]
+    !top
+    !show full-configuration resource-pools ip-address-pool mypool | display service-meta-data
+    ???! Refcount: 2
+    ???! Backpointer: [ /ncs:services/pool-service:pool-service[pool-service:name='mypool'] /ncs:services/ipaddress-allocator-test:ipaddress-allocator-test[ipaddress-allocator-test:name='test'] ]
+    ???resource-pools ip-address-pool mypool
+    ???! Refcount: 1
+    ???! Backpointer: [ /ncs:services/ipaddress-allocator-test:ipaddress-allocator-test[ipaddress-allocator-test:name='test'] ]
+    ???allocation test
+    ???! Refcount: 1
+    ???username           admin
+    ???! Refcount: 1
+    ???allocating-service /services/ipaddress-allocator-test:ipaddress-allocator-test[name='test']
+    ???! Refcount: 1
+    ???request subnet-size 24
+    ???!
+    ???subnet 10.0.0.0 8
+    ???!
+
+[shell jvm-log-check]
+    [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

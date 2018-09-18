@@ -1,0 +1,34 @@
+<project-meta-data xmlns="http://tail-f.com/ns/ncs-project">
+  <name>Compass</name>
+  <project-version>1.1</project-version>
+  <description>Core Segment Routing</description>
+  <packages-store>
+    <git>
+      <repo>https://</repo>
+    </git>
+  </packages-store>
+  <package>
+    <name>sr</name>
+    <local/>
+  </package>
+  <package>
+    <name>sr-ms</name>
+    <local/>
+  </package>
+  <package>
+    <name>ti-lfa</name>
+    <local/>
+  </package>
+  <package>
+    <name>disable-ldp</name>
+    <local/>
+  </package>
+  <package>
+    <name>resource-manager</name>
+    <local/>
+  </package>
+  <package>
+    <name>prouter-ned</name>
+    <local/>
+  </package>
+</project-meta-data>

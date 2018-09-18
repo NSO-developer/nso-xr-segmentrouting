@@ -1,0 +1,15 @@
+<ncs-pkg-build xmlns='http://tail-f.com/ns/ncs-pkg-build'>
+  <date>2018-03-12 11:06:33</date>
+  <file>undefined-resource-manager-3.3.0.tar.gz</file>
+  <type>release</type>
+  <arch>Linux.x86_64</arch>
+  <java>compiled Java class data, version 52.0</java>
+<package>
+  <name>resource-manager</name>
+  <version>3.3.0</version>
+
+</package>
+<ncs>
+  <version>undefined</version>
+</ncs>
+</ncs-pkg-build>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Code coverage" xmlns:jacoco="antlib:org.jacoco.ant">
+
+  <property environment="env"/>
+
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath path="${env.DEV_SUPPORT_HOME}/tools/lib/test/jacocoant.jar"/>
+  </taskdef>
+
+  <!-- Build a coverage report from all exec files in this directory tree. -->
+  <target name="coverage-report">
+    <mkdir dir="coverage-report"/>
+    <jacoco:report>
+      <executiondata>
+        <fileset dir="." >
+          <include name="**/jacoco.exec"/>
+        </fileset>
+      </executiondata>
+      <structure name="resource-manager">
+        <classfiles>
+          <fileset dir="../private-jar"/>
+        </classfiles>
+        <sourcefiles encoding="UTF-8">
+          <fileset dir="../src/java/src"/>
+        </sourcefiles>
+      </structure>
+      <html destdir="coverage-report"/>
+    </jacoco:report>
+  </target>
+</project>

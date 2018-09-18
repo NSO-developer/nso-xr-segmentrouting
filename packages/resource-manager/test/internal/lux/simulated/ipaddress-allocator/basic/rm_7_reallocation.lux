@@ -1,0 +1,107 @@
+[doc "RM 7 Deals with bugs in removing subnets from available when the"]
+[doc " subnet size was changed"]
+
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../../luxinc/resource-manager.luxinc]
+
+[global TEST_NCS_DIR=$DIR/../../../../../ncs]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli]
+    [invoke check-pkgs]
+    [invoke sync-from-device]
+    [invoke ncs-enter-config]
+
+    !set java-vm java-logging logger com.tailf.pkg level level-debug
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !set resource-pools ip-address-pool the_pool subnet 10.0.0.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool the_pool {
+        subnet 10.0.0.0 24;
+        available 10.0.0.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool the_pool allocation a1 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool the_pool {
+        subnet 10.0.0.0 24;
+        available 10.0.0.0 32;
+        available 10.0.0.2 32;
+        available 10.0.0.3 32;
+        available 10.0.0.4 30;
+        available 10.0.0.8 29;
+        available 10.0.0.16 28;
+        available 10.0.0.32 27;
+        available 10.0.0.64 26;
+        available 10.0.0.128 25;
+    """
+
+    """??
+        allocation 10.0.0.1 32 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    [invoke log "Change the size of the allocation"]
+    !set resource-pools ip-address-pool the_pool allocation a1 username admin request subnet-size 28
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !show resource-pools ip-address-pool the_pool allocation
+    """??
+    allocation a1 {
+        username admin;
+        request {
+            subnet-size 28;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status ip-allocator
+    """??
+    pool the_pool {
+        subnet 10.0.0.0 24;
+        available 10.0.0.16 28;
+        available 10.0.0.32 27;
+        available 10.0.0.64 26;
+        available 10.0.0.128 25;
+    """
+    """??
+        allocation 10.0.0.0 28 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+[shell jvm-log-check]
+    [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

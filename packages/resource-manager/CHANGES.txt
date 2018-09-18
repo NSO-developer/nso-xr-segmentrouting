@@ -1,0 +1,192 @@
+resource-manager v3.3.0 [February 27, 2018]
+==================================
+New features:
+    - RM-26: Add support for making allocations for IP address pools with
+             an inverted subnet size which makes it possible to allocate
+             the same size subnet for both an IPv4 and IPv6 pool.
+Bug fixes:
+    - RM-43: Don't raise alarms when pools are deleted.
+
+resource-manager v3.2.0 [November 17, 2017]
+==================================
+New features:
+ - RM-37: Set alarms to be disabled by default.
+          NOTE: If you use alarms, you need to update your config to
+          enable alarms per pool.
+
+Bug fixes:
+ - RM-39: Use LOCK_WAIT when starting CDB sessions.
+
+resource-manager v3.1.1 [June 30, 2017]
+==================================
+Corrections:
+ - RM-34: Fix exception when deleting under allocation X in IP allocator.
+
+resource-manager v3.1.0 [May 5th, 2017]
+==================================
+
+Corrections:
+ - RM-33: Fix IPv6 allocations during restart
+
+resource-manager v3.0.0 [March 10, 2017]
+==================================
+
+General:
+ - Removed support for NSO 4.0.
+ - Added alarms:
+   A major alarm is raised when the pool is empty
+   A major alarm is raised when the pool is nearing a
+   configurable threshold, set to ten percent by default.
+   This means that when there is only ten percent left,
+   the alarm is raised.
+
+   Alarms can be disabled completely.
+
+resource-manager v2.1.1 [February 24, 2017]
+=======
+Corrections:
+  - Don't throw an exception when creating a pool and
+    an allocation using the Java API in the same
+    transaction.
+
+resource-manager v2.1.0 [February 9, 2017]
+===================================
+General:
+ - Move NSO util package into the resource manager package.
+
+resource-manager v2.0.0 [January 17, 2017]
+===================================
+General:
+ - Removed deprecated functions from IdAllocator:
+
+    public static void idRequest(NavuNode service,
+                                 NavuNode root,
+                                 String poolName,
+                                 String username,
+                                 String id)
+
+    and
+
+    @Deprecated public static boolean responseReady(Cdb cdb, String
+    poolName, String id)
+
+Enhancements:
+  - Leaf 'start', 'end' made mandatory and 'end' >= 'start' MUST hold.
+
+Corrections:
+ - Documentation fixes
+ - Fix for really big pools.
+ - Fix template when not requesting a specific id.
+ - Fix allow change of allocation.
+
+resource-manager v1.5.0 [November 29, 2016]
+===================================
+General:
+ - Ipaddress- and Id-allocator functionality moved into this
+   package.
+
+Enhancements:
+ -
+
+Corrections:
+ - Documentation fixes
+
+resource-manager v1.4.0 [September 28, 2016]
+===================================
+General:
+ - ToRedeploy.java is moved to the nso-util package.
+
+Enhancements:
+ - id-allocator, ipaddress-allocator: Support the new
+   NSO 4.2 touch action to re-deploy many services in a
+   single transaction.
+
+Corrections:
+ -
+
+resource-manager v1.3.2 [September 15, 2016]
+===================================
+General:
+ -
+
+Enhancements:
+ -
+
+Corrections:
+ - Bug fix in id-allocator and ipaddress-allocator packages.
+   See CHANGES in each package for details.
+ - id-allocator, ipaddress-allocator: After HA fail-over
+   the new master didn't allocate Id's. This has been fixed.
+
+resource-manager v1.3.1 [September 06, 2016]
+===================================
+General:
+ - Updated id-allocator package with a python library. See CHANGES
+   for the package id-allocator for details.
+ - id-allocator, ipaddress-allocator: Added a Python library
+   to create and read allocation requests from a service written
+   in python. See pydoc for id_allocator.py.
+   NOTE: Using the python library requires NSO 4.2. The Java API is
+   not affected by this change.
+
+
+Enhancements:
+ -
+
+Corrections:
+ -
+
+resource-manager v1.3 [June 13, 2016]
+===================================
+
+General:
+ - Administrative updates
+ - id-allocator, ipaddress-allocator: Support for NSO 4.2
+
+resource-manager v1.2 [March 30, 2016]
+===================================
+
+General:
+ - Administrative updates
+ - id-allocator: Documentation updates
+ - ipaddress-allocator: Updated template to work with id-allocator pkg.
+
+Enhancements:
+ - id-allocator: Changed template name to make it work with
+   ipaddress-allocator
+
+Corrections:
+ - id-allocator: Fixed typo in template
+
+resource-manager v1.1 [January 29, 2016]
+===================================
+
+General:
+  - Reviewed javadoc and comments.
+  - id-allocator:
+  - Deprecated:
+    @Deprecated public static void idRequest(NavuNode service,
+                                              NavuNode root,
+                                              String poolName,
+                                              String username,
+                                              String id)
+    Instead added:
+    public static void idRequest(NavuNode service,
+                                  String poolName,
+                                  String username,
+                                  String id,
+                                  boolean sync)
+    And:
+    public static void idRequest(NavuNode service,
+                                  String poolName,
+                                  String username,
+                                  String id,
+                                  boolean sync,
+                                  int requestedId)
+Enhancements:
+ - id-allocator: Added round-robin behavior of id allocation.
+   (old behavior can still be used).
+ - ipaddress-allocator: Allow users to configure their pools
+   using ranges of ip addresses.
+
+Corrections:

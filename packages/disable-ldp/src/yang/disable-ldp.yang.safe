@@ -1,0 +1,84 @@
+module disable-ldp {
+  namespace "http://com/example/disableldp";
+  prefix disable-ldp;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  import tailf-common { prefix tailf; }
+
+  typedef int-type {
+      type enumeration {
+          enum TenGigE ;
+          
+          enum FortyGigE ;
+          
+          enum HundredGigE ;
+          
+          enum Bundle-Ether ;
+      }
+  }
+
+  typedef member-int-type {
+      type enumeration {
+          enum TenGigE ;
+          
+          enum FortyGigE;
+          
+          enum HundredGigE;
+      }
+  }
+
+  typedef int-id {
+      type string {
+          pattern "[0-9]+.*";
+      }
+  }
+
+  augment /ncs::services {
+    list disable-ldp {
+      key name;
+  
+      uses ncs:service-data;
+      ncs:servicepoint "disable-ldp";
+      leaf name {
+           tailf:info "Unique service id";
+           tailf:cli-allow-range;
+           type string;
+            }
+
+       list router {
+           key "device-name";
+           tailf:info "Core Node Device List";
+
+           leaf device-name {
+               tailf:info "Core Node Device name";
+               mandatory true;
+               type leafref {
+                   path "/ncs:devices/ncs:device/ncs:name";
+               }
+           }
+           leaf interface-type {
+               tailf:info "Interface Type";
+               type int-type;
+           }
+           leaf interface-id {
+               when "../interface-type!=''";
+               tailf:info " Interface ID";
+               mandatory true;
+               type int-id;
+           }
+
+           leaf int-description {
+               tailf:info "Interface Description";
+               type string;
+           }
+
+       }
+    }
+  }
+}

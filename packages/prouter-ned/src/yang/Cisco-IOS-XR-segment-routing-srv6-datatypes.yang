@@ -1,0 +1,54 @@
+module Cisco-IOS-XR-segment-routing-srv6-datatypes {
+
+  /*** NAMESPACE / PREFIX DEFINITION ***/
+
+  namespace "http://cisco.com/ns/yang"+
+    "/Cisco-IOS-XR-segment-routing-srv6-datatypes";
+
+
+  prefix "segment-routing-srv6-datatypes";
+
+  /*** LINKAGE (IMPORTS / INCLUDES) ***/
+
+  import Cisco-IOS-XR-types { prefix "xr"; }
+
+  /*** META INFORMATION ***/
+
+  organization "Cisco Systems, Inc.";
+
+  contact
+    "Cisco Systems, Inc.
+     Customer Service
+
+     Postal: 170 West Tasman Drive
+     San Jose, CA 95134
+
+     Tel: +1 800 553-NETS
+
+     E-mail: cs-yang@cisco.com";
+
+  description 
+    "This module contains a collection of generally useful
+     derived YANG data types.
+
+     Copyright (c) 2013-2018 by Cisco Systems, Inc.
+     All rights reserved.";
+
+  revision "2015-11-09" {
+    description
+      "IOS XR 6.0 revision.";
+  }
+
+  typedef Srv6-locator-name {
+    type xr:Cisco-ios-xr-string {
+      length "1..58";
+    }
+    description "Srv6 locator name";
+  }
+  typedef Srv6-locator-len {
+    type uint32 {
+      range "32..112";
+    }
+    description "Srv6 locator len";
+  }
+}

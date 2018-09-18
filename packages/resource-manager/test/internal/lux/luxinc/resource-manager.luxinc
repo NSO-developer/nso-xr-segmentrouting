@@ -1,0 +1,88 @@
+[include ../lux-common/lux_common.luxinc]
+
+[global TEST_NCS_DIR=$DIR/../../../../ncs]
+
+[macro startup]
+    [invoke netsim-stop-all]
+    [invoke ncs-stop]
+    [invoke ncs-clean]
+    [invoke netsim-delete-network]
+    [invoke netsim-create-network cisco-ios 1 cisco-ios]
+    [invoke netsim-restart cisco-ios 0]
+    [invoke netsim-xml-init cisco-ios 0]
+    [invoke ncs-start]
+[endmacro]
+
+[macro check-pkgs]
+    !show packages package directory
+    ?NAME                      DIRECTORY
+    ?------------------------------------------------------------------------------
+    ?cisco-ios                 ./state/packages-in-use/1/cisco-ios
+    ?id-loop                   ./state/packages-in-use/1/id-loop
+    ?ip-loop                   ./state/packages-in-use/1/ip-loop
+    ?ipaddress-allocator-test  ./state/packages-in-use/1/ipaddress-allocator-test
+    ?resource-manager          ./state/packages-in-use/1/resource-manager
+    ?$NCS_PROMPT_OPER
+[endmacro]
+
+[macro purge-alarm]
+    !request alarms purge-alarms alarm-status any
+    ?purged-alarms.*
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+    !run show alarms
+    ?alarms summary criticals 0
+    # Wait for alarms to be cleared before purging.
+    ?alarms alarm-list number-of-alarms 0
+    ?$NCS_PROMPT_CONF
+[endmacro]
+
+[macro check-jvmlog]
+    !echo ==$$?==
+    ?==[0-9]+==
+    ?SH-PROMPT:
+    !if [ -e $TEST_NCS_DIR/logs/ncs-java-vm.log ]; then
+    ! ln -s $TEST_NCS_DIR/logs/ncs-java-vm.log jvmlog ;
+    !else
+    ! if [ -e $TEST_NCS_DIR/ncs-java-vm.log ]; then
+    !  ln -s $TEST_NCS_DIR/ncs-java-vm.log jvmlog ;
+    ! else
+    !  rm -f jvmlog ;
+    ! fi
+    !fi
+    ?SH-PROMPT:
+    [timeout 300]
+    -\<ERROR\>
+    !if [ -s jvmlog ]; then cat jvmlog | egrep -v '^<ER{2}OR>.*NedWorker.*$' ; rm -f jvmlog ; fi
+    ?SH-PROMPT:
+    !rm -f jvmlog
+    ?SH-PROMPT:
+[endmacro]
+
+[macro connect-device]
+    !request devices connect
+    ???connect-result {
+    ???device cisco-ios0
+    ???result true
+    ???}
+    ?$NCS_PROMPT_OPER
+[endmacro]
+
+[macro sync-from-device]
+    !request devices sync-from
+    ???sync-result {
+    ???device cisco-ios0
+    ???result true
+    ???}
+    ?$NCS_PROMPT_OPER
+[endmacro]
+
+[macro sync-from-device-cfg]
+    !request devices sync-from
+    ???sync-result {
+    ???device cisco-ios0
+    ???result true
+    ???}
+    ?$NCS_PROMPT_CONF
+[endmacro]

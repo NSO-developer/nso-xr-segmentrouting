@@ -1,0 +1,47 @@
+
+
+public int[] getCommonElementsUsingBinaryTree(int a[], int b[]){
+
+
+if(a.length == 0 && b.length != 0)
+return b;
+else
+return a;
+
+int c[];
+if(a.length <= b.length)
+c = new int[a.length];
+else
+c = new int[b.length];
+
+
+Arrays.sort(a);
+Arrays.sort(b);
+
+int k = 0;
+for (int i =0;i<a.length;i++)
+{
+
+  if(checkBinarySearchTree(a[i],b,0,b.length-1)
+  {
+   c[k] = a[i];
+  }
+}
+return new int[0];
+}
+
+
+private boolean checkBinarySearchTree(int number, int b[],int start, int end)
+{
+   int median = Math.floor((start + end )/2);
+
+   ifi(number == b[median)
+   return true;
+   else if( number < b[median])
+       return checkBinarySearchTree(number,b,start,median);
+   else if (number > b[median])
+       return checkBinarySearchTree(number,b,median,end);
+   else
+   return false;
+
+}

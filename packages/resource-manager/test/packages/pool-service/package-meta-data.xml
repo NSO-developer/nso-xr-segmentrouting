@@ -1,0 +1,13 @@
+<ncs-package xmlns="http://tail-f.com/ns/ncs-packages">
+  <name>pool-service</name>
+  <package-version>1.0</package-version>
+  <description>Generated Python package</description>
+  <ncs-min-version>4.2</ncs-min-version>
+
+  <component>
+    <name>pool-service</name>
+    <application>
+      <python-class-name>pool_service.Service</python-class-name>
+    </application>
+  </component>
+</ncs-package>

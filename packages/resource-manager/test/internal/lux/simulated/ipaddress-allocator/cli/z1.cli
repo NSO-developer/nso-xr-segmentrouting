@@ -1,0 +1,20 @@
+ralloc:resource-pools {
+    ralloc:ip-address-pool z {
+        ipalloc:subnet 83.131.11.160 28;
+        ipalloc:exclude 83.131.11.161 32;
+        ipalloc:exclude 83.131.11.162 32;
+        ipalloc:exclude 83.131.11.163 32;
+        ipalloc:exclude 83.131.11.164 32;
+        ipalloc:exclude 83.131.11.165 32;
+        ipalloc:exclude 83.131.11.166 32;
+        ipalloc:exclude 83.131.11.167 32;
+        ipalloc:exclude 83.131.11.168 32;
+        ipalloc:exclude 83.131.11.169 32;
+        ipalloc:exclude 83.131.11.170 32;
+        ipalloc:exclude 83.131.11.171 32;
+        ipalloc:exclude 83.131.11.172 32;
+        ipalloc:exclude 83.131.11.173 32;
+        ipalloc:exclude 83.131.11.174 32;
+        ipalloc:exclude 83.131.11.175 32;
+    }
+}

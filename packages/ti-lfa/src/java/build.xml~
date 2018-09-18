@@ -1,0 +1,53 @@
+<project basedir="." default="all" name="package">
+  <property environment="env"/>
+  <property name="build.dir" value="build"/>
+  <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="src.dir" value="src"/>
+  <property name="rsc.dir" value="src/resources"/>
+  <property name="sharedjar.dir" value="../../shared-jar"/>
+  <property name="privatejar.dir" value="../../private-jar"/>
+  <property name="doc.dir" value="${build.dir}/javadoc"/>
+  <property name="ncs.dir" value="${env.NCS_DIR}/java/jar"/>
+  <property name="ncs.topdir" value="${env.NCS_DIR}"/>
+  <property name="package" value="sr"/>
+  <property name="sr.dir" value="../../../sr/shared-jar"/>
+  <property name="ncs_java_source_ver" value="1.8"/>
+  <property name="ncs_java_target_ver" value="1.8"/>
+  <path id="core-libs">
+    <fileset dir="${ncs.dir}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+  <path id="sr-libs">
+    <fileset dir="${sr.dir}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <target depends="package" name="all"/>
+
+  <target depends="compile" name="package">
+    <jar basedir="${classes.dir}" destfile="${sharedjar.dir}/${package}-ns.jar"
+         includes="**/namespaces/*.class"/>
+    <jar basedir="${classes.dir}" destfile="${privatejar.dir}/${package}.jar"
+         excludes="**/namespaces/*.class" includes="**/*.class"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+    <delete file="${sharedjar.dir}/${package}-ns.jar"/>
+    <delete file="${privatejar.dir}/${package}.jar"/>
+  </target>
+
+  <target name="compile">
+    <mkdir dir="${classes.dir}"/>
+    <javac debug="on" debuglevel="lines,vars,source"
+           srcdir="${src.dir}" destdir="${classes.dir}"
+           encoding="UTF-8" includeantruntime="false" >
+      <compilerarg value="-Xlint:unchecked"/>
+      <compilerarg value="-Xlint:deprecation"/>
+      <classpath refid="core-libs"/>
+      <classpath refid="sr-libs"/>
+    </javac>
+  </target>
+</project>

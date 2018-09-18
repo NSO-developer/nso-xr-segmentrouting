@@ -1,0 +1,44 @@
+[doc "Test of NSO 4.2+ specific features of ipaddress allocator"]
+
+[config skip=NCS_VERSION_SHORT=4.1]
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../../luxinc/resource-manager.luxinc]
+
+[global TEST_NCS_DIR=$DIR/../../../../../ncs]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli-config]
+
+    !set resource-pools ip-address-pool management subnet 192.168.3.0 24
+    ?$NCS_PROMPT_CONF
+    !commit
+    ?$NCS_PROMPT_CONF
+
+    #
+    # Python API Test.
+    #
+    !set services ip-loop-python sId pool management cidr-length 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools ip-address-pool management allocation sId
+    """??
+    response {
+        subnet 192.168.3.1/32;
+        from   192.168.3.0/24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+[shell jvm-log-check]
+    [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

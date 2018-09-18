@@ -1,0 +1,21 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{/router/device-name}</name>
+        <config>
+        <sr xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-segment-routing-ms-cfg">
+          <mappings>
+            <mapping>
+              <af>{/address-family}</af>
+              <ip>{/ipv4-address}</ip>
+              <mask>{/prefix-length}</mask>
+              <sid-start>{/first-sid-value}</sid-start>
+              <sid-range>{/number-of-allocated-sids}</sid-range>
+            </mapping>
+          </mappings>
+          <enable/>
+        </sr>
+        </config>
+    </device>
+  </devices>
+</config-template>

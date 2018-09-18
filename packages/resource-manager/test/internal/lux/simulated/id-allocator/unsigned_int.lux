@@ -1,0 +1,78 @@
+[doc "Test that we can allocate large ranges"]
+
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../luxinc/resource-manager.luxinc]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli]
+    [invoke check-pkgs]
+    [invoke sync-from-device]
+    [invoke ncs-enter-config]
+
+    !set java-vm java-logging logger com.tailf.pkg level level-debug
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !set resource-pools id-pool pool range start 4294967294 end 4294967295
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show id-allocator pool pool
+    ?pool\h*-\h*-\h*4294967294\h*4294967295.*
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool pool allocation allocation1 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ?pool pool {
+    ?available 4294967295 4294967295;
+    ?allocation 4294967294;
+    ?}
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool pool allocation allocation2 username admin
+    ?[ok]
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ?pool pool {
+    ?allocation 4294967294;
+    ?allocation 4294967295;
+    ?}
+    ?$NCS_PROMPT_CONF
+
+    !delete resource-pools id-pool pool allocation allocation1
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ?pool pool {
+    ?available 4294967294 4294967294;
+    ?allocation 4294967295;
+    ?}
+    ?$NCS_PROMPT_CONF
+
+    !delete resource-pools id-pool pool allocation allocation2
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ?pool pool {
+    ?available 4294967294 4294967295;
+    ?}
+    ?$NCS_PROMPT_CONF
+
+[cleanup]
+    [invoke ncs-cleanup]

@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<!DOCTYPE book [
+<!ENTITY % global SYSTEM "./global.ent">
+%global;
+]>
+
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xml:id="dg.resource_manager.intro">
+
+  <title>&product; Guide</title>
+  <sect1>
+    <title>Introduction</title>
+    <para>
+      &product; package contains both an API for generic resource pool
+      handling called <tag>resource allocator</tag>, and two applications utilizing
+      the API. The applications are the <tag>id-allocator</tag> and
+      the <tag>ipaddress-allocator</tag>, explained in separate chapters.
+      This version of &product; is &rmvsn; and was released together with
+      NSO version &nsovsn;.
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Overview</title>
+    <para>The <tag>&product;</tag> interface, the <tag>resource allocator</tag>, 
+    provides a generic resource allocation mechanism that works well with
+    <tag>services</tag> and in a high availability (HA) configuration.
+    Expected is implementations of specific resource allocators implemented as
+    separate NSO packages. A <tag>service</tag> will then have the possibility
+    to use allocator implementations dedicated for different resources.
+    </para>
+    <para>The YANG model of the <tag>resource allocator</tag>
+    (<filename>resource-allocator.yang</filename>) can be augmented with different
+    resource pools, as is the case for the two applications <tag>id-allocator</tag> and
+    <tag>ipaddress-allocator</tag>. Each pool has an <tag>allocation</tag> list
+    where services are expected to create instances to signal that they request an
+    allocation. Request parameters are stored in the <tag>request</tag> container
+    and the allocation response is written in the <tag>response</tag> container.
+    </para>
+    <para>Since the allocation request may fail the response container contains
+    a choice where one case is for error and one for success.
+    </para>
+    <para>Each allocation list entry also contains an <tag>allocating-service</tag>
+    leaf. This is an instance-identifier that points to the service that
+    requested the resource. This is the service that will be re-deployed
+    when the resource has been allocated.
+    </para>
+    <para>Resource allocation packages should subscribe to several points in
+    this <tag>resource-pool</tag> tree. First, they must detect when a new resource
+    pool is created or deleted, secondly they must detect when an
+    allocation request is created or deleted. A package may also augment
+    the pool definition with additional parameters, for example, an ip
+    address allocator may wish to add configuration parameters for
+    defining the available subnets to allocate from, in which case it must
+    also subscribe to changes to these settings.
+    </para>
+  </sect1>
+  <sect1>
+    <title>Installation</title>
+    <para>Installation of this package is done as with any other package,
+      as described in the NSO Packages chapter in NSO &nsovsn; Administration Guide.
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Resource Allocator Data Model</title>
+    <para>The API of the resource allocator is defined in this YANG data model:
+    </para>
+    <programlisting language="yang"><![CDATA[
+  grouping resource-pool-grouping {
+    leaf name {
+      tailf:info "Unique name for the pool";
+      type string;
+    }
+
+    list allocation {
+      key id;
+
+      leaf id {
+        type string;
+      }
+
+      leaf username {
+        description
+          "Authenticated user for invoking the service";
+        type string;
+        mandatory true;
+      }
+
+      leaf allocating-service {
+        tailf:info "Instance identifier of service that owns resouce";
+        type instance-identifier;
+      }
+
+      container request {
+        description
+          "When creating a request for a resource the
+           implementing package augments here.";
+      }
+
+      container response {
+        config false;
+        tailf:cdb-oper {
+          tailf:persistent true;
+        }
+        choice response-choice {
+          case error {
+            leaf error {
+              type string;
+            }
+          }
+          case ok {
+            // The implementing package augments here
+          }
+        }
+      }
+      }]]></programlisting>
+  </sect1>
+
+  <sect1>
+    <title>HA Considerations</title>
+    <para>Looking at <tag>High Availability</tag> there are two things we need to
+    consider - the allocator state needs to be replicated, and the allocation
+    needs only to be performed on one node.
+    </para>
+    <para>The easiest way to replicate the state is to write it into CDB-oper and let CDB
+    perform the replication. This is what we do in the <tag>ipaddress-allocator</tag>.
+    </para>
+    <para>We only want the allocator to allocate addresses on the master
+    node. Since the allocations are written into CDB they will be visible
+    on both master and slave nodes, and the CDB subscriber will be
+    notified on both nodes. In this case we only want the allocator on the
+    master node to perform the allocation. We therefore read the HA mode
+    leaf from CDB to determine which HA mode the current subscriber is
+    running in, if none or master, we proceed with the allocation.
+    </para>
+  </sect1>
+
+</chapter>
+
+

@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<!DOCTYPE book [
+<!ENTITY % global SYSTEM "./global.ent">
+%global;
+]>
+
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xml:id="dg.resource_manager.ipaddressallocator">
+
+  <title>NSO IP Address Allocator Deployment Guide</title>
+  <sect1>
+    <title>Introduction</title>
+    <para>This document contains deployment information and procedures for
+      the Tail-f <tag>NSO IP Address Allocator</tag> application.</para>
+  </sect1>
+
+  <sect1>
+    <title>Overview</title>
+    <para>The <tag>NSO IP Address Allocator</tag> application contains an IP address allocator
+      that use the <tag>Resource Manager</tag> API to provide IP address allocation. It
+      uses a RAM based allocation algorithm that stores its state in CDB as
+      oper data.
+    </para>
+    <para>The file <filename>resource-manager/src/java/src/com/tailf/pkg/ipaddressallocator/IPAddressAllocator.java</filename>
+    contains the part that deals with the resource manager APIs whereas the RAM based IP address allocator resides under
+    <filename>resource-manager/src/java/src/com/tailf/pkg/ipam</filename>
+    </para>
+    <para>The <code>IPAddressAllocator</code> class subscribes to five points in the DB:</para>
+        <variablelist>
+      <?dbfo list-presentation="blocks"?>
+      <varlistentry>
+        <term><tag>/ralloc:resource-pools/ip-address-pool</tag></term>
+        <listitem>
+          <para>To be notified when new pools are created/deleted. It needs to
+          create/delete instances of the <code>IPAddressPool</code> class. Each instance of
+          the <code>IPAddressPool</code> handles one pool.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><tag>/ralloc:resource-pools/ip-address-pool/subnet</tag></term>
+        <listitem>
+          <para>To be notified when subnets are added/removed from an existing
+            address pool.  When a new subnet is added it needs to invoke the
+            <function>addToAvailable</function> method of the right <code>IPAddressPool</code> instance.
+            When a pool is removed it needs to reset all existing allocations from
+            the pool, create new allocations, and re-deploy the services that
+            had the allocations.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><tag>/ralloc:resource-pols/ip-address-pool/exclude</tag></term>
+        <listitem>
+          <para>To detect when new exlcusions are added, and when old
+          exlusions are removed.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><tag>/ralloc:resource-pols/ip-address-pool/range</tag></term>
+        <listitem>
+          <para>To be notified when ranges are added to or removed from an address pool.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><tag>/ralloc:resource-pols/ip-address-pool/allocation</tag></term>
+        <listitem>
+          <para>To detect when new allocation requests are added, and when old
+          allocations are released. When a new request is added the right size
+          of subnet is allocated from the <code>IPAddressPool</code> instance, and the
+          result is written to the <tag>response/subnet</tag> leaf, and finally the
+          service is re-deployed.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </sect1>
+
+  <sect1>
+    <title>Examples</title>
+    <para>This section presents some simple use cases of the <tag>NSO IP Address Allocator</tag>.
+    It uses the C-style CLI.
+    </para>
+    <sect2>
+      <title>Create an IP pool</title>
+      <para>Creating an IP pool requires the user to specify a list of subnets
+      (identified by a network address and a CIDR mask),
+      a list of IP ranges (identified by its first and last IP address),
+      or a combination of the two to be handled by the
+      pool. The following CLI interaction shows an allocation where a pool <tag>pool1</tag> is
+      created, and the subnet <tag>10.0.0.0/24</tag> and the range
+      <tag>192.168.0.0 - 192.168.255.255</tag> is added to it.
+      </para>
+      <screen>admin@ncs# <userinput>resource-pools ip-address-pool pool1 subnet 10.0.0.0 24</userinput></screen>
+      <screen>admin@ncs# <userinput>resource-pools ip-address-pool pool1 range 192.168.0.0 192.168.255.255</userinput></screen>
+    </sect2>
+
+    <sect2>
+      <title>Create an allocation request for a subnet</title>
+      <para>Since we have already populated one of our pools, we can now start
+      creating allocation requests. In the CLI interaction below, we request to allocate
+      a subnet with a CIDR mask of 30, in the pool <tag>pool1</tag>.
+      </para>
+      <screen>admin@ncs# <userinput>resource-pools ip-address-pool pool1 allocation a1 username \<?linebreak?>
+               myuser request subnet-size 30</userinput></screen>
+    </sect2>
+
+    <sect2>
+      <title>Read the response to an allocation request</title>
+      <para>The response to an allocation request comes in the form of operational
+      data written to the path
+      <filename>/resource-pools/ip-address-pool/allocation/response</filename>.
+      The response container contains a choice with two cases,
+      <tag>ok</tag> and <tag>error</tag>. If the
+      allocation failed, the <tag>error</tag> case will be set and an error message can
+      be found in the leaf <tag>error</tag>. If the allocation succeeded,
+      the <tag>ok</tag> case will be set and the allocated subnet will be written to the
+      leaf <tag>subnet</tag> and the subnet from which the allocation was made will be
+      written to the leaf <tag>from</tag>. The following CLI interaction shows how to view
+      the status of the current allocation requests.
+      </para>
+      <screen>admin@ncs# <userinput>show resouce-pools</userinput></screen>
+      <para>Table <xref linkend="subnet_allocation"/> shows that a subnet with a CIDR
+      of 30 has been allocated from the subnet <tag>10.0.0.0/24</tag> in <tag>pool1</tag>.
+      </para>
+      <screen>
+        <table id="subnet_allocation" frame="void" border="0">
+          <title>Subnet allocation</title>
+          <thead>
+            <tr><th>NAME</th><th>ID</th><th>ERROR</th><th>SUBNET</th><th>FROM</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>pool1</th><th>a1</th><th>-</th><th>10.0.0.0/30</th><th>10.0.0.0/24</th></tr>
+          </tbody>
+        </table>
+      </screen>
+    </sect2>
+
+    <sect2>
+      <title>Automatic redeployment of service</title>
+      <para>An allocation request may contain a reference to a service that is to
+        be redeployed whenever the status of the allocation changes. The
+        following status changes trigger redeployment.
+      </para>
+    <itemizedlist>
+      <listitem>
+        <para>Allocation response goes from no case to some case
+        (<tag>ok</tag> or <tag>error</tag>)
+        </para>
+      </listitem>
+      <listitem>
+        <para>Allocation response goes from one case to the other
+        </para>
+      </listitem>
+      <listitem>
+        <para>Allocation response case stays the same but the leaves within the
+          case change. Typically because a reallocation was triggered by
+          configuration changes in the IP pool.
+        </para>
+      </listitem>
+    </itemizedlist>
+    <para>The service reference is set in the <tag>allocating-service</tag> leaf, for example</para>
+    <screen>admin@ncs# <userinput>resource-pools ip-address-pool pool1 allocation a1 allocating-service \<?linebreak?>
+             /services/vl:loop[name='myservice'] username myuser request subnet-size 30</userinput>
+    </screen>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Security</title>
+    <para>The <tag>NSO IP Address Allocator</tag> requires a username to be configured by
+    the service application when creating an allocation request.
+    This username will be used to re-deploy the service application
+    once a resource has been allocated. Default NACM rules denies all
+    standard users access to the <tag>/ralloc:resource-pools</tag> list. These
+    default settings are provided in the (<tag>initial_data/aaa_init.xml</tag>)
+    file of the <tag>resource-manager</tag> package.
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Alarms</title>
+    <para>There are two alarms associated with the IP Address
+    Allocator:</para>
+    <sect2>
+      <title>Empty alarm</title>
+      <para>This alarm is raised when the pool is empty, there are no
+      availabe IPs that can be allocated.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Low threshold reached alarm</title>
+      <para>This alarm is raised when the pool is nearing empty,
+      e.g. there is only ten percent or less separate IPs left in the
+      pool.
+      </para>
+    </sect2>
+  </sect1>
+</chapter>
+
+

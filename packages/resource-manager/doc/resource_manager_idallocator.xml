@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<!DOCTYPE book [
+<!ENTITY % global SYSTEM "./global.ent">
+%global;
+]>
+
+<chapter xmlns="http://docbook.org/ns/docbook" version="5.0"
+  xmlns:xi="http://www.w3.org/2001/XInclude"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xml:id="dg.resource_manager.idallocator">
+
+  <title>NSO ID Allocator Deployment Guide</title>
+  <sect1>
+    <title>Introduction</title>
+    <para>This document contains deployment information and procedures
+      for the <tag>NSO ID Allocator</tag>.
+    </para>
+    <para>The <tag>NSO ID Allocator</tag> is an extension of the generic resource
+      allocation mechanism named <tag>NSO Resource Manager</tag>. It can allocate
+      integers which can serve for instance as VLAN identifiers.
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Overview</title>
+    <para>The <tag>ID Allocator</tag> can host any number of ID pools. Each pool contains
+      a certain number of IDs that can be allocated. They are specified
+      by a range, and potentially broken into several ranges by a list
+      of excluded ranges.
+    </para>
+    <para>The <tag>ID allocator</tag> YANG models are divided into a configuration data specific
+      model (<filename>id-allocator.yang</filename>), and an operational data specific
+      model (<filename>id-allocator-oper.yang</filename>). Users of this package will
+      request allocations in the configuration tree. The operational
+      tree serves as an internal data structure of the package.
+    </para>
+    <para>An ID request can allocate either the lowest possible ID
+      in a pool, or a specified (by the user) value, such as <tag>5</tag> or <tag>1000</tag>.
+    </para>
+    <para>Allocation requests can be synchronized between pools. This
+      synchronization is based on the id of the allocation request
+      itself (such as for instance <tag>allocation1</tag>), the result is that
+      the allocations will have the same allocated value across
+      pools.
+    </para>
+  </sect1>
+
+
+  <sect1>
+    <title>Examples</title>
+    <para>This section presents some simple use cases of the <tag>NSO ID Allocator</tag>.
+      The examples below are presented using Cisco style CLI.
+    </para>
+    <sect2>
+      <title>Create an ID pool</title>
+      <para>The CLI interaction below depicts how it is possible to create a
+        new ID pool, and assign it a range of values from <tag>100</tag> to <tag>1000</tag>.
+      </para>
+      <screen>admin@ncs# <userinput>resource-pools id-pool pool1 range start 100 end 1000</userinput></screen>
+      <screen>admin@ncs# <userinput>commit</userinput></screen>
+      <para>
+      </para>
+    </sect2>
+    <sect2>
+      <title>Create an allocation request</title>
+      <para>When a pool has been created, it is possible to create allocation
+        requests on the values handled by a pool. The CLI interaction below
+        shows how to allocate a value in the pool defined above.
+      </para>
+      <screen>admin@ncs# <userinput>resource-pools id-pool pool1 allocation a1 user myuser</userinput></screen>
+      <screen>admin@ncs# <userinput>commit</userinput></screen>
+      <para>At this point, we have a pool with range 100 to 1000
+        and one allocation (100). This is shown in <xref linkend="Pool-range-100-1000"/>
+      </para>
+      <screen>
+        <table id="Pool-range-100-1000" frame="void" border="0">
+          <title>Pool range 100-1000</title>
+          <thead>
+            <tr><th>NAME</th><th>START</th><th>END</th><th>START</th><th>END</th><th>START</th><th>END</th><th>ID</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>pool1</th><th>-</th><th>-</th><th></th><th></th><th>101</th><th>1000</th><th>100</th></tr>
+          </tbody>
+        </table>
+      </screen>
+    </sect2>
+    <sect2>
+      <title>Create a synchronized allocation request</title>
+      <para>Allocations can be synchronized between pools by setting
+        <tag>request sync</tag> to <tag>true</tag> when creating each allocation request.
+        The allocation id, which is <tag>b</tag> in this CLI interaction, determines
+        which allocations will be synchronized across pools.
+      </para>
+      <screen>admin@ncs# <userinput>resource-pools id-pool pool2 range start 100 end 1000</userinput></screen>
+      <screen>admin@ncs# <userinput>resource-pools id-pool pool1 allocation b user myuser request sync true</userinput></screen>
+      <screen>admin@ncs# <userinput>resource-pools id-pool pool2 allocation b user myuser request sync true</userinput></screen>
+      <screen>admin@ncs# <userinput>commit</userinput></screen>
+      <para>As can be seen in <xref linkend="Synchronized_pools"/>, allocations b (in <tag>pool1</tag> and
+        in <tag>pool2</tag>) are synchronized across pools pool1 and pool2 and
+        receive the ID value of 1000 in both pools.
+      </para>
+      <screen>
+        <table id="Synchronized_pools" frame="void" border="0">
+          <title>Synchronized pools</title>
+          <thead>
+            <tr><th>NAME</th><th>START</th><th>END</th><th>START</th><th>END</th><th>START</th><th>END</th><th>ID</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>pool1</th><th>-</th><th>-</th><th></th><th></th><th>101</th><th>999</th><th>100</th></tr>
+            <tr><th></th><th>-</th><th>-</th><th></th><th></th><th></th><th></th><th>1000</th></tr>
+            <tr><th>pool2</th><th>-</th><th>-</th><th></th><th></th><th>101</th><th>999</th><th>1000</th></tr>
+          </tbody>
+        </table>
+      </screen>
+    </sect2>
+    <sect2>
+      <title>Request an id using round robin method</title>
+      <para>Default behavior for requesting a new id is to request the first free
+        id in increasing order.
+      </para>
+      <para>This method is selectable using the 'method' container. For example
+        the 'first free' method can be explicitly set:
+      </para>
+      <screen>admin@ncs# <userinput>set resource-pools id-pool methodRangeFirst allocation a username \<?linebreak?>
+               admin request method firstfree</userinput></screen>
+      <para>If we remove allocation a, and do a new allocation, using the default
+        method we allocate the first free id, in this case 1 again. Using the
+        round robin scheme, we instead allocate the next in order, i.e. 2.
+      </para>
+      <screen>admin@ncs# <userinput>set resource-pools id-pool methodRoundRobin allocation a username \<?linebreak?>
+               admin request method roundrobin</userinput></screen>
+      <note>
+        <para>Note that the request method is set on a per-request basis. Two
+        different requests may request ids from the same pool using different
+        request methods.
+        </para>
+      </note>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Security</title>
+    <para>The <tag>NSO ID Allocator</tag> requires a username to be configured by
+      the service application when creating an allocation request.
+      This username will be used to re-deploy the service application
+      once a resource has been allocated. Default NACM rules denies all
+      standard users access to the <tag>/ralloc:resource-pools</tag> list. These
+      default settings are provided in the (<tag>initial_data/aaa_init.xml</tag>)
+      file of the <tag>resource-manager</tag> package.
+    </para>
+    <para>It's up to the administrator to add a rule that allows the user to
+      perform the service re-deploy.
+    </para>
+    <para>How the administrator should write these rules are detailed in
+    the The AAA Infrastructure chapter in NSO &nsovsn; Administration Guide.
+    </para>
+  </sect1>
+  <sect1>
+    <title>Alarms</title>
+    <para>There are two alarms associated with the ID
+    Allocator:</para>
+    <sect2>
+      <title>Empty alarm</title>
+      <para>This alarm is raised when the pool is empty, there are no
+      availabe IDs for further allocation.
+      </para>
+    </sect2>
+    <sect2>
+      <title>Low threshold reached alarm</title>
+      <para>This alarm is raised when the pool is nearing empty,
+      e.g. there is only ten percent or less left in the pool.
+      </para>
+    </sect2>
+  </sect1>
+</chapter>
+
+

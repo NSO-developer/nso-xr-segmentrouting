@@ -1,0 +1,279 @@
+[doc "Test alarms for the IP Address Allocator"]
+
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../../luxinc/resource-manager.luxinc]
+
+[global TEST_NCS_DIR=$DIR/../../../../../ncs]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli]
+    [invoke check-pkgs]
+    [invoke sync-from-device]
+    [invoke ncs-enter-config]
+
+    !set java-vm java-logging logger com.tailf.pkg level level-debug
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    # =========================================================================
+    [invoke log "\nENABLE alarms\n"]
+    !set resource-pools ip-address-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    [invoke log "Testing exhausted alarm when allocating last IP\n"]
+    !set resource-pools ip-address-pool mypool subnet 10.0.0.0 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ## Create a new allocation for mypool
+    !set resource-pools ip-address-pool mypool allocation a1 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    #We should see the line in the cli session:
+    #   *** ALARM ip-address-pool-exhausted: Pool is empty
+    #?ALARM ip-address-pool-exhausted: Pool is empty
+    ?.*ALARM ip-address-pool-exhausted: Pool is empty
+
+    #The allocation got the only id available in the pool,
+    # Note that there are no availables:
+    !run show status ip-allocator
+    ???pool mypool {
+    ???allocation 10.0.0.0 32 {
+    ???owner      "";
+    ???username   admin;
+    ???request-id a1;
+    ???}
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !run show alarms alarm-list alarm ncs
+    # We check some more features the 1st run
+    ???alarms alarm-list alarm ncs ip-address-pool-exhausted mypool ""
+    ???is-cleared              false
+    ???last-perceived-severity major
+    ???last-alarm-text         "Pool is empty"
+    ???perceived-severity major
+    ???alarm-text         "Pool is empty"
+
+    [invoke log "Verify that deleting the pool clears the alarm "]
+    !delete resource-pools ip-address-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    ?No entries found\.
+
+    # The alarm is still there but the 'is-cleared' is set to true
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs ip-address-pool-exhausted mypool ""
+    ???is-cleared              true
+    ???perceived-severity cleared
+
+
+    # We clear all alarms to reset before next tc
+    [invoke purge-alarm]
+
+    # =========================================================================
+    [invoke log "Testing threshold alarm  when allocating many IPs\n"]
+    !set resource-pools ip-address-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools ip-address-pool mypool subnet 10.0.0.0 27
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [loop alloc 0..28]
+    !set resource-pools ip-address-pool mypool allocation alloc${alloc} username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+    [endloop]
+
+    ?.*ALARM ip-address-pool-low-threshold-reached: Pool is getting close to empty
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs ip-address-pool-low-threshold-reached mypool ""
+    ???is-cleared              false
+    ???last-perceived-severity major
+
+    [invoke log "4. Verify that removing the pool removes the alarm\n"]
+    !delete resource-pools ip-address-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    ?No entries found\.
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs ip-address-pool-low-threshold-reached mypool ""
+    ???is-cleared              true
+    ???perceived-severity cleared
+
+    [invoke purge-alarm]
+
+
+    # =========================================================================
+    [invoke log "Testing empty alarm  when allocating last IP\n"]
+    !set resource-pools ip-address-pool mypool subnet 10.0.1.0 32
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools ip-address-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !set resource-pools ip-address-pool mypool subnet 10.0.2.0 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool mypool allocation alloc1 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool mypool allocation alloc2 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ?.*ALARM ip-address-pool-exhausted: Pool is empty
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs ip-address-pool-exhausted mypool ""
+    ???is-cleared              false
+    ???last-perceived-severity major
+
+    !delete resource-pools ip-address-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    # We need to wait for the alarm to be cleared before we can remove the alarms
+    [invoke wait-for-ncs-cmd-cfg "run show alarms alarm-list alarm ncs ip-address-pool-exhausted mypool \"\" is-cleared" "is-cleared true"]
+
+    [invoke purge-alarm]
+
+    # =========================================================================
+    [invoke log "Verify alarm isn't raised when disabled\n"]
+    !set resource-pools ip-address-pool mypool subnet 10.0.1.0 32
+    ?$NCS_PROMPT_CONF
+
+    !delete resource-pools ip-address-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !set resource-pools ip-address-pool mypool subnet 10.0.2.0 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool mypool allocation alloc1 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool mypool allocation alloc2 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show alarms
+    ???alarms summary majors 0
+
+    [invoke log "Verify alarm is raised when alarms are enabled"]
+    !set resource-pools ip-address-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ?.*ALARM ip-address-pool-exhausted: Pool is empty
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs ip-address-pool-exhausted mypool ""
+    ???is-cleared              false
+    ???last-perceived-severity major
+
+    !delete resource-pools ip-address-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke log "Verify alarm is lowered when alarms are disabled"]
+    !set resource-pools ip-address-pool mypool alarms disabled
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "run show alarms alarm-list alarm ncs ip-address-pool-exhausted mypool \"\" is-cleared" "is-cleared true"]
+
+    [invoke purge-alarm]
+    !delete resource-pools ip-address-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    # =========================================================================
+    [invoke log "Testing setting custom threshold to 100%"]
+    !set resource-pools ip-address-pool mypool subnet 10.0.0.0 27
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools ip-address-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools ip-address-pool mypool alarms low-threshold-alarm 100
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    ?.*ALARM ip-address-pool-low-threshold-reached: Pool is getting close to empty
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs ip-address-pool-low-threshold-reached mypool ""
+    ???is-cleared              false
+    ???last-perceived-severity major
+
+    [invoke log "Verify alarm is lowered when alarms are disabled"]
+    !delete resource-pools ip-address-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "run show alarms alarm-list alarm ncs ip-address-pool-low-threshold-reached mypool \"\" is-cleared" "is-cleared true"]
+
+    [invoke log "Verify alarm is raised when alarms are enabled"]
+    !set resource-pools ip-address-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "run show alarms alarm-list alarm ncs ip-address-pool-low-threshold-reached mypool \"\" is-cleared" "is-cleared false"]
+
+    [invoke log "Verify alarm is lowered when threshold is changed"]
+    !set resource-pools ip-address-pool mypool alarms low-threshold-alarm 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "run show alarms alarm-list alarm ncs ip-address-pool-low-threshold-reached mypool \"\" is-cleared" "is-cleared true"]
+
+    [invoke log "Allocate a lot of resources, to see that we reach the custom threshold"]
+    [loop alloc 0..27]
+    !set resource-pools ip-address-pool mypool allocation alloc${alloc} username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+    [endloop]
+
+    [invoke wait-for-ncs-cmd-cfg "run show alarms alarm-list alarm ncs ip-address-pool-low-threshold-reached mypool \"\" is-cleared" "is-cleared false"]
+
+    [invoke log "Return to default threshold"]
+    !delete resource-pools ip-address-pool mypool alarms low-threshold
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "run show alarms alarm-list alarm ncs ip-address-pool-low-threshold-reached mypool \"\" is-cleared" "is-cleared true"]
+
+    !exit
+    ?$NCS_PROMPT_OPER
+
+    !exit
+    ?SH-PROMPT:
+    [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

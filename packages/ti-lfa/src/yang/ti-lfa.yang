@@ -1,0 +1,69 @@
+module ti-lfa {
+  namespace "http://com/example/tilfa";
+  prefix ti-lfa;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+  import tailf-common {
+     prefix tailf;
+  }
+  import cf-common {
+    prefix cfcommon;
+  }
+
+  organization "Cisco Network Services orchestrator";
+  description
+    "This yang defines Toplogy Independent Loop Free Alternative Model that needs to be configured on the P Routers for Segment Routing. This is the second step/phase in the Segment Routing process once an admin has validated necessary configurations have been reflected on the network after pushing the Segement Routing Service.";
+
+
+  revision 2018-07-23 {
+    description
+    "This yang defines Toplogy Independent Loop Free Alternative Model that needs to be configured on the P Routers for Segment Routing";
+  }
+
+   augment /ncs:services {
+     list ti-lfa {
+       description "List of Toplogy Independent Loop Free Alternative Services deployed across P Routers. A user can group this per zone,state or some locality for better differentation by giving a appropriate name";
+       key name;
+       uses ncs:service-data;
+       ncs:servicepoint "tilfa-servicepoint";
+       tailf:info  "List of Toplogy Independent Loop Free Alternative Services deployed across P Routers. A user can group this per zone,state or some locality for better differentation by giving a appropriate name";
+       leaf name {
+         description "User Facing ti-fla Service Name";
+     	 tailf:info "User Facing ti-fla Service Name";
+         tailf:cli-allow-range;
+         type string;
+       }
+
+       leaf address-family {
+         tailf:info "ISIS Address Family for TI-LFA. Possible values ipv4 or ipv6";
+         type string {
+         length "4";
+           pattern "ipv[46]";
+         }
+       }
+
+       list router {
+       	 key "device-name";
+         tailf:info "Core Node P Route Device List";
+
+         leaf device-name {
+           tailf:info "Core Node P Router Device name";
+           mandatory true;
+             type leafref {
+             path "/ncs:devices/ncs:device/ncs:name";
+           }
+         }
+	 uses cfcommon:instance-name-choice-grouping;
+	 uses cfcommon:pickinterfaces;
+       }
+     }
+   }
+ }
+
+
+

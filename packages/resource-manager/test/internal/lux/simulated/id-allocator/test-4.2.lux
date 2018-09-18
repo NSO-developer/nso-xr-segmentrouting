@@ -1,0 +1,50 @@
+[doc "Test of NSO 4.2+ specific features of id allocator"]
+
+[config skip=NCS_VERSION_SHORT=4.1]
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../luxinc/resource-manager.luxinc]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli]
+    [invoke check-pkgs]
+    [invoke sync-from-device]
+    [invoke ncs-enter-config]
+
+    !set resource-pools id-pool management range start 10 end 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ???pool management {
+    ???available 10 20;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    [doc Test the python allocation functions]
+    !set services id-loop-python l-py pool management device cisco-ios0 unit 4 description hej
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [sleep 5]
+    !run show status id-allocator
+    """??
+    pool management {
+        available 11 19;
+        allocation 10;
+        allocation 20;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete services id-loop-python l-py
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+[cleanup]
+    [invoke ncs-cleanup]

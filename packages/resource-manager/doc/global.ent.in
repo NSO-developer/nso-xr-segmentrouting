@@ -1,0 +1,3 @@
+<!ENTITY nsovsn "@NSO_VERSION@">
+<!ENTITY rmvsn "@PKG_VERSION@">
+<!ENTITY product "NSO Resource Manager">

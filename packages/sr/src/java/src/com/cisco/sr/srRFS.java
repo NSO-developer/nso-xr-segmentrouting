@@ -1,0 +1,190 @@
+package com.cisco.sr;
+
+import com.tailf.cdb.Cdb;
+import com.cisco.sr.namespaces.*;
+import java.util.List;
+import java.util.Properties;
+import com.tailf.conf.*;
+import com.tailf.navu.*;
+import com.tailf.ncs.ns.Ncs;
+import com.tailf.dp.*;
+import com.tailf.dp.annotations.*;
+import com.tailf.dp.proto.*;
+import com.tailf.dp.services.*;
+import com.tailf.ncs.template.Template;
+import com.tailf.ncs.template.TemplateVariables;
+import org.apache.log4j.Logger;
+import com.tailf.ncs.annotations.Resource;
+import com.tailf.ncs.annotations.ResourceType;
+import com.tailf.ncs.annotations.Scope;
+import com.tailf.maapi.MaapiSchemas.CSCase;
+
+public class srRFS {
+    private static final Logger LOGGER = Logger.getLogger(srRFS.class);
+
+    @Resource(type = ResourceType.CDB, scope = Scope.CONTEXT, qualifier = "reactive")
+    public Cdb cdb;
+
+    /**
+
+     * @param context - The current ServiceContext object
+     * @param service - The NavuNode references the service node.
+     * @param ncsRoot - This NavuNode references the ncs root.
+     * @param opaque  - Parameter contains a Properties object.
+     *                  This object may be used to transfer
+     *                  additional information between consecutive
+     *                  calls to the create callback.  It is always
+     *                  null in the first call. I.e. when the service
+     *                  is first created.
+     * @return Properties the returning opaque instance
+     * @throws ConfException
+     */
+
+    @ServiceCallback(servicePoint="sr-servicepoint",
+        callType=ServiceCBType.CREATE)
+    public Properties create(ServiceContext context,
+                             NavuNode service,
+                             NavuNode ncsRoot,
+                             Properties opaque)
+	throws ConfException {
+
+	if (opaque == null) {
+	    opaque = new Properties();
+	}
+	String servicePath = null;
+	try {
+
+	    servicePath = service.getKeyPath();
+	    LOGGER.info("Deploy start " + servicePath);
+	    final String srName = service.leaf("name").valueAsString();
+	    final Allocation allocation = new Allocation(context, service, cdb);
+	    LOGGER.info("Service Name :"+srName);
+
+	    final NavuContainer infra = InfraUtils.getInfraNode(ncsRoot);
+	    String isisInfra = InfraUtils.getInfraNodeValue(ncsRoot,"instance-name");
+	    String loopbackInfra = InfraUtils.getInfraNodeValue(ncsRoot,"loopback");
+	    final String srPoolName = InfraUtils.getResourcePoolName(infra,CFConstants.SR_GLOBALBLOCK_POOL);
+	    List<String> srPoolRange = InfraUtils.getResourcePoolRange(ncsRoot,srPoolName);
+	    LOGGER.info("Found sr-globalblock-pool "+srPoolName);
+
+	    Template myTemplate = new Template(context, "sr-template");
+	    TemplateVariables myVars = new TemplateVariables();
+
+	    // set a variable to some value
+	    myVars.putQuoted("SRGB-START",srPoolRange.get(0));
+	    myVars.putQuoted("SRGB-END",srPoolRange.get(1));
+	    LOGGER.info(String.format("Found Infra ISIS INSTANCE-NAME %s LOOPBACK %s SRGB-START %s SRGB-END %s",isisInfra,loopbackInfra,srPoolRange.get(0)+"",srPoolRange.get(1)+""));
+
+	    for(NavuNode node : service.list("router")){
+		String deviceName = node.leaf("device-name").valueAsString();
+		NavuContainer prefixPreference = node.container("prefix-preference");
+		if(isSelected(prefixPreference,"prefix-choice",sr._auto_assign_prefix_sid_)){
+		    allocation.allocateId(srPoolName, srName+"-"+deviceName);
+		}
+	    }
+
+	    for(NavuNode node : service.list("router")){
+		String deviceName = node.leaf("device-name").valueAsString();
+		// set a variable to some value
+		myVars.putQuoted("DEVICENAME", deviceName);
+		NavuContainer prefixPreference = node.container("prefix-preference");
+		NavuContainer instancePreference = node.container("instance-preference");
+		NavuContainer srmplsPreference = node.container("sr-mpls-preference");
+
+		if(!isSelected(instancePreference,"instance-choice",sr._use_sr_infrastructure_)){
+		    NavuContainer instance = instancePreference.container("custom-instance");
+		    String instanceName = instance.leaf("instance-name").valueAsString();
+		    if(instanceName!=null && instanceName.equals("")){
+			throw new ConfException("Instance Name cannot be empty");
+		    }
+		    String loopback = instance.leaf("loopback").valueAsString();
+		    myVars.putQuoted("INSTANCE-NAME", instanceName);
+		    myVars.putQuoted("LOOPBACK",loopback);
+		    LOGGER.info(String.format("Custom Instance-name %s and loopback %s for device %s ",instanceName,loopback,deviceName));
+		}
+		else {
+		    myVars.putQuoted("INSTANCE-NAME", isisInfra);
+		    myVars.putQuoted("LOOPBACK",loopbackInfra);
+		}
+
+		String mpls = "ldp";
+		if(isSelected(srmplsPreference,"sr-mpls-prefer-choice",sr._sr_prefer_))
+		    mpls ="segment-routing";
+		LOGGER.info(String.format("sr mpls preference %s",mpls));
+		myVars.putQuoted("TYPE",mpls);
+
+		if(isSelected(prefixPreference,"prefix-choice",sr._auto_assign_prefix_sid_)){
+		    if (allocation.readyId(srPoolName, srName+"-"+deviceName)) {
+			long reserved = allocation.getId(srPoolName,srName+"-"+deviceName);
+			LOGGER.info(String.format("Reserved %s for device %s ",reserved+"",deviceName));
+			myVars.putQuoted("PREFIX-SID",""+reserved);
+
+		    }
+		    else
+			return opaque;
+		}
+		else {
+		    String prefixSid = prefixPreference.leaf(sr._assign_prefix_sid_).valueAsString();
+		    LOGGER.info(String.format("Custom prefix-sid  %s for device %s ",prefixSid+"",deviceName));
+		    myVars.putQuoted("PREFIX-SID",prefixSid);
+
+		}
+		myTemplate.apply(service, myVars);
+		LOGGER.info(String.format("Template applied on Device %s",deviceName));
+	    }
+
+        } catch (Exception e) {
+            throw new DpCallbackException(e.getMessage(), e);
+        }
+        return opaque;
+    }
+
+    /**
+     *
+     *
+     */
+    private boolean isSelected(NavuContainer dev, String parent, String child) throws ConfException {
+
+	CSCase choiceCase = dev.getSelectedCase(parent);
+
+	if (choiceCase == null) {
+	    LOGGER.error("No "+parent+"  has Been Selected. ");
+	    throw new NavuException("No "+parent+" has been selected! This is mandatory ");
+	}
+
+	String selectedChoice = choiceCase.getTag();
+	if(selectedChoice.equalsIgnoreCase(child))
+	    return true;
+
+	return false;
+    }
+
+    /**
+     * Init method for selftest action
+     */
+    @ActionCallback(callPoint="sr-self-test", callType=ActionCBType.INIT)
+    public void init(DpActionTrans trans) throws DpCallbackException {
+    }
+
+    /**
+     * Selftest action implementation for service
+     */
+    @ActionCallback(callPoint="sr-self-test", callType=ActionCBType.ACTION)
+    public ConfXMLParam[] selftest(DpActionTrans trans, ConfTag name,
+                                   ConfObject[] kp, ConfXMLParam[] params)
+    throws DpCallbackException {
+        try {
+            // Refer to the service yang model prefix
+            String nsPrefix = "sr";
+            // Get the service instance key
+            String str = ((ConfKey)kp[0]).toString();
+
+          return new ConfXMLParam[] {
+              new ConfXMLParamValue(nsPrefix, "success", new ConfBool(true)),
+              new ConfXMLParamValue(nsPrefix, "message", new ConfBuf(str))};
+
+        } catch (Exception e) {
+            throw new DpCallbackException("self-test failed", e);
+        }
+    }
+}

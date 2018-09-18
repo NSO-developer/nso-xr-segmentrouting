@@ -1,0 +1,1581 @@
+[doc "Test of ipaddress allocator"]
+
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../../luxinc/resource-manager.luxinc]
+
+[global TEST_NCS_DIR=$DIR/../../../../../ncs]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli-config]
+
+    !set resource-pools ip-address-pool management subnet 10.0.0.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        available 10.0.0.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management allocation a1 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management allocation a2 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management allocation a3 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        available 10.0.0.0 32;
+        available 10.0.0.4 30;
+        available 10.0.0.8 29;
+        available 10.0.0.16 28;
+        available 10.0.0.32 27;
+        available 10.0.0.64 26;
+        available 10.0.0.128 25;
+        allocation 10.0.0.1 32 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+        allocation 10.0.0.2 32 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+        allocation 10.0.0.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a1 {
+            response {
+                subnet 10.0.0.1/32;
+                from   10.0.0.0/24;
+            }
+        }
+        allocation a2 {
+            response {
+                subnet 10.0.0.2/32;
+                from   10.0.0.0/24;
+            }
+        }
+        allocation a3 {
+            response {
+                subnet 10.0.0.3/32;
+                from   10.0.0.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    [invoke rollback]
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        available 10.0.0.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management subnet 10.0.1.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        available 10.0.0.0 23;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management subnet 10.0.2.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.2.0 24;
+        available 10.0.0.0 23;
+        available 10.0.2.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management subnet 10.0.3.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.2.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 22;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management subnet 10.0.2.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management allocation a1 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool management allocation a2 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool management allocation a3 username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.16 28;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+        allocation 10.0.3.1 32 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+        allocation 10.0.3.2 32 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+        allocation 10.0.3.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a1 {
+            response {
+                subnet 10.0.3.1/32;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a2 {
+            response {
+                subnet 10.0.3.2/32;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a3 {
+            response {
+                subnet 10.0.3.3/32;
+                from   10.0.3.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    [invoke ncs-exit-config]
+    !exit
+    ?SH-PROMPT
+
+[shell restart]
+    [timeout 120]
+    [invoke netsim-stop-all]
+    [invoke ncs-stop]
+    [invoke ncs-start]
+    [invoke netsim-start-all]
+
+[shell cli]
+    [invoke ncs-cli-config]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.16 28;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+        allocation 10.0.3.1 32 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+        allocation 10.0.3.2 32 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+        allocation 10.0.3.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a1 {
+            response {
+                subnet 10.0.3.1/32;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a2 {
+            response {
+                subnet 10.0.3.2/32;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a3 {
+            response {
+                subnet 10.0.3.3/32;
+                from   10.0.3.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool acme subnet 192.168.1.0 24
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool acme subnet 24.1.2.0 28
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    """??
+    ip-address-pool acme;
+    ip-address-pool management {
+        allocation a1 {
+            response {
+                subnet 10.0.3.1/32;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a2 {
+            response {
+                subnet 10.0.3.2/32;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a3 {
+            response {
+                subnet 10.0.3.3/32;
+                from   10.0.3.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status ip-allocator
+    """??
+    pool acme {
+        subnet 24.1.2.0 28;
+        subnet 192.168.1.0 24;
+        available 24.1.2.0 28;
+        available 192.168.1.0 24;
+    }
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.16 28;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+        allocation 10.0.3.1 32 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+        allocation 10.0.3.2 32 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+        allocation 10.0.3.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management allocation a1 username admin request subnet-size 28
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool acme allocation a1 username admin request subnet-size 28
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool acme {
+        subnet 24.1.2.0 28;
+        subnet 192.168.1.0 24;
+        available 192.168.1.0 24;
+        allocation 24.1.2.0 28 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 32;
+        available 10.0.3.1 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+        allocation 10.0.3.2 32 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+        allocation 10.0.3.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+        allocation 10.0.3.16 28 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    """??
+    ip-address-pool acme {
+        allocation a1 {
+            response {
+                subnet 24.1.2.0/28;
+                from   24.1.2.0/28;
+            }
+        }
+    }
+    ip-address-pool management {
+        allocation a1 {
+            response {
+                subnet 10.0.3.16/28;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a2 {
+            response {
+                subnet 10.0.3.2/32;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a3 {
+            response {
+                subnet 10.0.3.3/32;
+                from   10.0.3.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool acme allocation
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    """??
+    ip-address-pool acme;
+    ip-address-pool management {
+        allocation a1 {
+            response {
+                subnet 10.0.3.16/28;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a2 {
+            response {
+                subnet 10.0.3.2/32;
+                from   10.0.3.0/24;
+            }
+        }
+        allocation a3 {
+            response {
+                subnet 10.0.3.3/32;
+                from   10.0.3.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status ip-allocator
+    """??
+    pool acme {
+        subnet 24.1.2.0 28;
+        subnet 192.168.1.0 24;
+        available 24.1.2.0 28;
+        available 192.168.1.0 24;
+    }
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 32;
+        available 10.0.3.1 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+        allocation 10.0.3.2 32 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+        allocation 10.0.3.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+        allocation 10.0.3.16 28 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    [invoke rollback]
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool acme {
+        subnet 24.1.2.0 28;
+        subnet 192.168.1.0 24;
+        available 192.168.1.0 24;
+        allocation 24.1.2.0 28 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 32;
+        available 10.0.3.1 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+    """
+    """??
+        allocation 10.0.3.2 32 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+        allocation 10.0.3.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+        allocation 10.0.3.16 28 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool acme
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 32;
+        available 10.0.3.1 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+    """
+    """??
+        allocation 10.0.3.2 32 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+        allocation 10.0.3.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+        allocation 10.0.3.16 28 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management allocation a2
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 32;
+        available 10.0.3.1 32;
+        available 10.0.3.2 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+    """
+    """??
+        allocation 10.0.3.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+        allocation 10.0.3.16 28 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management allocation a1
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 32;
+        available 10.0.3.1 32;
+        available 10.0.3.2 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.16 28;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+    """
+    """??
+        allocation 10.0.3.3 32 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management allocation a3
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.1.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 23;
+        available 10.0.3.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management subnet 10.0.1.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 24;
+        available 10.0.3.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management subnet
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management;
+    """
+    ?$NCS_PROMPT_CONF
+    [invoke rollback]
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 24;
+        available 10.0.3.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management allocation a1 username admin request subnet-size 31
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.2 32;
+        available 10.0.0.3 32;
+        available 10.0.0.4 30;
+        available 10.0.0.8 29;
+        available 10.0.0.16 28;
+        available 10.0.0.32 27;
+        available 10.0.0.64 26;
+        available 10.0.0.128 25;
+        available 10.0.3.0 24;
+        allocation 10.0.0.0 31 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a1 {
+            response {
+                subnet 10.0.0.0/31;
+                from   10.0.0.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management allocation a2 username admin request subnet-size 31
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.2 32;
+        available 10.0.0.3 32;
+        available 10.0.0.6 32;
+        available 10.0.0.7 32;
+        available 10.0.0.8 29;
+        available 10.0.0.16 28;
+        available 10.0.0.32 27;
+        available 10.0.0.64 26;
+        available 10.0.0.128 25;
+        available 10.0.3.0 24;
+        allocation 10.0.0.0 31 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+        allocation 10.0.0.4 31 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a1 {
+            response {
+                subnet 10.0.0.0/31;
+                from   10.0.0.0/24;
+            }
+        }
+        allocation a2 {
+            response {
+                subnet 10.0.0.4/31;
+                from   10.0.0.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management allocation a3 username admin request subnet-size 30
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.2 32;
+        available 10.0.0.3 32;
+        available 10.0.0.6 32;
+        available 10.0.0.7 32;
+        available 10.0.0.12 30;
+        available 10.0.0.16 28;
+        available 10.0.0.32 27;
+        available 10.0.0.64 26;
+        available 10.0.0.128 25;
+        available 10.0.3.0 24;
+        allocation 10.0.0.0 31 {
+            owner      "";
+            username   admin;
+            request-id a1;
+        }
+        allocation 10.0.0.4 31 {
+            owner      "";
+            username   admin;
+            request-id a2;
+        }
+        allocation 10.0.0.8 30 {
+            owner      "";
+            username   admin;
+            request-id a3;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a1 {
+            response {
+                subnet 10.0.0.0/31;
+                from   10.0.0.0/24;
+            }
+        }
+        allocation a2 {
+            response {
+                subnet 10.0.0.4/31;
+                from   10.0.0.0/24;
+            }
+        }
+        allocation a3 {
+            response {
+                subnet 10.0.0.8/30;
+                from   10.0.0.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management allocation
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 24;
+        available 10.0.3.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    """??
+    ip-address-pool management;
+    """
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools ip-address-pool management allocation a username admin request subnet-size 16
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 24;
+        available 10.0.3.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    -
+    !run show status resource-pools
+    # ip-address-pool management {
+    #     allocation a {
+    #         response {
+    #             error "com.tailf.pkg.ipam.exceptions.AddressPoolMaskInvalidException: 24 24 ";
+    #         }
+    #     }
+    # }
+    ?allocation a
+    ?error.*AddressPoolMaskInvalidException.*24 24
+    ?$NCS_PROMPT_CONF
+    [invoke rollback]
+    [invoke commit]
+
+    -$fail_pattern
+    [timeout 120]
+    [invoke sync-from-device-cfg]
+    !set services ip-loop a device cisco-ios0 pool management unit 4 description foo
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a {
+            response {
+                subnet 10.0.0.1/32;
+                from   10.0.0.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 32;
+        available 10.0.0.2 32;
+        available 10.0.0.3 32;
+        available 10.0.0.4 30;
+        available 10.0.0.8 29;
+        available 10.0.0.16 28;
+        available 10.0.0.32 27;
+        available 10.0.0.64 26;
+        available 10.0.0.128 25;
+        available 10.0.3.0 24;
+        allocation 10.0.0.1 32 {
+            owner      "/ncs:services/ip-vl:ip-loop{a}";
+            username   admin;
+            request-id a;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    [invoke rollback]
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        available 10.0.0.0 24;
+        available 10.0.3.0 24;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status resource-pools
+    """??
+    ip-address-pool management;
+    """
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools ip-address-pool management subnet 192.168.1.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set services ip-loop a device cisco-ios0 pool management unit 4 description foo
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a {
+            response {
+                subnet 10.0.0.1/32;
+                from   10.0.0.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.0.0 24;
+        subnet 10.0.3.0 24;
+        subnet 192.168.1.0 24;
+        available 10.0.0.0 32;
+        available 10.0.0.2 32;
+        available 10.0.0.3 32;
+        available 10.0.0.4 30;
+        available 10.0.0.8 29;
+        available 10.0.0.16 28;
+        available 10.0.0.32 27;
+        available 10.0.0.64 26;
+        available 10.0.0.128 25;
+        available 10.0.3.0 24;
+        available 192.168.1.0 24;
+        allocation 10.0.0.1 32 {
+            owner      "/ncs:services/ip-vl:ip-loop{a}";
+            username   admin;
+            request-id a;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management subnet 10.0.0.0 24
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management subnet 10.0.3.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a {
+            response {
+                subnet 192.168.1.1/32;
+                from   192.168.1.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 192.168.1.0 24;
+        available 192.168.1.0 32;
+        available 192.168.1.2 32;
+        available 192.168.1.3 32;
+        available 192.168.1.4 30;
+        available 192.168.1.8 29;
+        available 192.168.1.16 28;
+        available 192.168.1.32 27;
+        available 192.168.1.64 26;
+        available 192.168.1.128 25;
+        allocation 192.168.1.1 32 {
+            owner      "/ncs:services/ip-vl:ip-loop{a}";
+            username   admin;
+            request-id a;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management subnet 192.168.1.0 24
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management subnet 10.0.3.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+
+    !run show status resource-pools
+    """??
+    ip-address-pool management {
+        allocation a {
+            response {
+                subnet 10.0.3.1/32;
+                from   10.0.3.0/24;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 10.0.3.0 24;
+        available 10.0.3.0 32;
+        available 10.0.3.2 32;
+        available 10.0.3.3 32;
+        available 10.0.3.4 30;
+        available 10.0.3.8 29;
+        available 10.0.3.16 28;
+        available 10.0.3.32 27;
+        available 10.0.3.64 26;
+        available 10.0.3.128 25;
+        allocation 10.0.3.1 32 {
+            owner      "/ncs:services/ip-vl:ip-loop{a}";
+            username   admin;
+            request-id a;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools ip-address-pool management subnet 192.168.1.0 24
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management subnet 10.0.3.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !delete service ip-loop
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool management6 subnet 2001:db8:1234:: 100
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool management6 allocation a username admin request subnet-size 120
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    """??
+    ip-address-pool management;
+    ip-address-pool management6 {
+        allocation a {
+            response {
+                subnet 2001:db8:1234::/120;
+                from   2001:db8:1234::/100;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 192.168.1.0 24;
+        available 192.168.1.0 24;
+    }
+    pool management6 {
+        subnet 2001:db8:1234:: 100;
+        available 2001:db8:1234::100 120;
+        available 2001:db8:1234::200 119;
+        available 2001:db8:1234::400 118;
+        available 2001:db8:1234::800 117;
+        available 2001:db8:1234::1000 116;
+        available 2001:db8:1234::2000 115;
+        available 2001:db8:1234::4000 114;
+        available 2001:db8:1234::8000 113;
+        available 2001:db8:1234::1:0 112;
+        available 2001:db8:1234::2:0 111;
+        available 2001:db8:1234::4:0 110;
+        available 2001:db8:1234::8:0 109;
+        available 2001:db8:1234::10:0 108;
+        available 2001:db8:1234::20:0 107;
+        available 2001:db8:1234::40:0 106;
+        available 2001:db8:1234::80:0 105;
+        available 2001:db8:1234::100:0 104;
+        available 2001:db8:1234::200:0 103;
+        available 2001:db8:1234::400:0 102;
+        available 2001:db8:1234::800:0 101;
+        allocation 2001:db8:1234:: 120 {
+            owner      "";
+            username   admin;
+            request-id a;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    [invoke rollback]
+    [invoke commit]
+
+    !set resource-pools ip-address-pool management exclude 192.168.1.1 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 192.168.1.0 24;
+        exclude 192.168.1.1 32;
+        available 192.168.1.0 32;
+        available 192.168.1.2 32;
+        available 192.168.1.3 32;
+        available 192.168.1.4 30;
+        available 192.168.1.8 29;
+        available 192.168.1.16 28;
+        available 192.168.1.32 27;
+        available 192.168.1.64 26;
+        available 192.168.1.128 25;
+    }
+    pool management6 {
+        subnet 2001:db8:1234:: 100;
+        available 2001:db8:1234:: 100;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools ip-address-pool management allocation a username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 192.168.1.0 24;
+        exclude 192.168.1.1 32;
+        available 192.168.1.0 32;
+        available 192.168.1.3 32;
+        available 192.168.1.4 30;
+        available 192.168.1.8 29;
+        available 192.168.1.16 28;
+        available 192.168.1.32 27;
+        available 192.168.1.64 26;
+        available 192.168.1.128 25;
+        allocation 192.168.1.2 32 {
+            owner      "";
+            username   admin;
+            request-id a;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management exclude 192.168.1.2 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool management {
+        subnet 192.168.1.0 24;
+        exclude 192.168.1.1 32;
+        exclude 192.168.1.2 32;
+        available 192.168.1.0 32;
+        available 192.168.1.4 30;
+        available 192.168.1.8 29;
+        available 192.168.1.16 28;
+        available 192.168.1.32 27;
+        available 192.168.1.64 26;
+        available 192.168.1.128 25;
+        allocation 192.168.1.3 32 {
+            owner      "";
+            username   admin;
+            request-id a;
+        }
+    }
+    pool management6 {
+        subnet 2001:db8:1234:: 100;
+        available 2001:db8:1234:: 100;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool foo subnet 1.1.1.1 32
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool foo range 1.1.1.3 1.1.1.4
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool foo subnet 1.1.1.33 32
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool foo range 1.1.1.64 1.1.1.64
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool foo range 1.1.1.65 1.1.1.127
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool foo {
+        subnet 1.1.1.1 32;
+        subnet 1.1.1.3 32;
+        subnet 1.1.1.4 32;
+        subnet 1.1.1.33 32;
+        subnet 1.1.1.64 32;
+        subnet 1.1.1.65 32;
+        subnet 1.1.1.66 31;
+        subnet 1.1.1.68 30;
+        subnet 1.1.1.72 29;
+        subnet 1.1.1.80 28;
+        subnet 1.1.1.96 27;
+        available 1.1.1.1 32;
+        available 1.1.1.3 32;
+        available 1.1.1.4 32;
+        available 1.1.1.33 32;
+        available 1.1.1.64 26;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool foo allocation a username admin request subnet-size 32
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator
+    """??
+    pool foo {
+        subnet 1.1.1.1 32;
+        subnet 1.1.1.3 32;
+        subnet 1.1.1.4 32;
+        subnet 1.1.1.33 32;
+        subnet 1.1.1.64 32;
+        subnet 1.1.1.65 32;
+        subnet 1.1.1.66 31;
+        subnet 1.1.1.68 30;
+        subnet 1.1.1.72 29;
+        subnet 1.1.1.80 28;
+        subnet 1.1.1.96 27;
+        available 1.1.1.3 32;
+        available 1.1.1.4 32;
+        available 1.1.1.33 32;
+        available 1.1.1.64 26;
+        allocation 1.1.1.1 32 {
+            owner      "";
+            username   admin;
+            request-id a;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    !load merge ../cli/z1.cli
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator pool z
+    """??
+    subnet 83.131.11.160 28;
+    exclude 83.131.11.161 32;
+    exclude 83.131.11.162 32;
+    exclude 83.131.11.163 32;
+    exclude 83.131.11.164 32;
+    exclude 83.131.11.165 32;
+    exclude 83.131.11.166 32;
+    exclude 83.131.11.167 32;
+    exclude 83.131.11.168 32;
+    exclude 83.131.11.169 32;
+    exclude 83.131.11.170 32;
+    exclude 83.131.11.171 32;
+    exclude 83.131.11.172 32;
+    exclude 83.131.11.173 32;
+    exclude 83.131.11.174 32;
+    exclude 83.131.11.175 32;
+    available 83.131.11.160 32;
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool z
+    ?$NCS_PROMPT_CONF
+    !load merge ../cli/z2.cli
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator pool z
+    """??
+    subnet 83.131.11.160 27;
+    exclude 83.131.11.161 32;
+    exclude 83.131.11.162 32;
+    exclude 83.131.11.163 32;
+    exclude 83.131.11.164 32;
+    exclude 83.131.11.165 32;
+    exclude 83.131.11.166 32;
+    exclude 83.131.11.167 32;
+    exclude 83.131.11.168 32;
+    exclude 83.131.11.169 32;
+    exclude 83.131.11.170 32;
+    exclude 83.131.11.171 32;
+    exclude 83.131.11.172 32;
+    exclude 83.131.11.173 32;
+    exclude 83.131.11.174 32;
+    exclude 83.131.11.175 32;
+    exclude 83.131.11.176 32;
+    exclude 83.131.11.177 32;
+    exclude 83.131.11.178 32;
+    exclude 83.131.11.179 32;
+    exclude 83.131.11.180 32;
+    available 83.131.11.160 32;
+    available 83.131.11.181 32;
+    available 83.131.11.182 32;
+    available 83.131.11.183 32;
+    available 83.131.11.184 29;
+    """
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool z
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !load merge ../cli/z2.cli
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status ip-allocator pool z
+    """??
+    subnet 83.131.11.160 27;
+    exclude 83.131.11.161 32;
+    exclude 83.131.11.162 32;
+    exclude 83.131.11.163 32;
+    exclude 83.131.11.164 32;
+    exclude 83.131.11.165 32;
+    exclude 83.131.11.166 32;
+    exclude 83.131.11.167 32;
+    exclude 83.131.11.168 32;
+    exclude 83.131.11.169 32;
+    exclude 83.131.11.170 32;
+    exclude 83.131.11.171 32;
+    exclude 83.131.11.172 32;
+    exclude 83.131.11.173 32;
+    exclude 83.131.11.174 32;
+    exclude 83.131.11.175 32;
+    exclude 83.131.11.176 32;
+    exclude 83.131.11.177 32;
+    exclude 83.131.11.178 32;
+    exclude 83.131.11.179 32;
+    exclude 83.131.11.180 32;
+    available 83.131.11.160 32;
+    available 83.131.11.181 32;
+    available 83.131.11.182 32;
+    available 83.131.11.183 32;
+    available 83.131.11.184 29;
+
+    """
+    ?$NCS_PROMPT_CONF
+
+    !exit
+    ?$NCS_PROMPT_OPER
+
+    [invoke log "Validation"]
+    # z contains 83.131.11.160/27
+    !config
+    ?$NCS_PROMPT_CONF
+
+    # Check that we refuse sub-subnets
+    !set resource-pools ip-address-pool z subnet 83.131.11.160 28
+    ?$NCS_PROMPT_CONF
+    -
+    !validate
+    ?Failed
+    ?\[error\]
+    ?$NCS_PROMPT_CONF
+    !revert no-confirm
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+    # Check that we refuse super-subnets
+    !set resource-pools ip-address-pool z subnet 83.131.11.160 26
+    ?$NCS_PROMPT_CONF
+    -
+    !validate
+    ?Failed
+    ?\[error\]
+    ?$NCS_PROMPT_CONF
+    !revert no-confirm
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+    # Check that we refuse super-ranges
+    !set resource-pools ip-address-pool z range 83.131.11.160 83.131.11.191
+    ?$NCS_PROMPT_CONF
+    -
+    !validate
+    ?Failed
+    ?\[error\]
+    ?$NCS_PROMPT_CONF
+    !revert no-confirm
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+    # Check that we are allowed a neighbouring subnet
+    !set resource-pools ip-address-pool z subnet 83.131.11.128 27
+    ?$NCS_PROMPT_CONF
+    -
+    [invoke commit]
+
+    # Check that an exclude must be in a subnet
+    !set resource-pools ip-address-pool z exclude 83.131.11.192 30
+    ?$NCS_PROMPT_CONF
+    -
+    !validate
+    ?Failed
+    ?\[error\]
+    ?$NCS_PROMPT_CONF
+    !revert no-confirm
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+    # Check that we won't allow super-exclusions
+    !set resource-pools ip-address-pool z exclude 83.131.11.0 24
+    ?$NCS_PROMPT_CONF
+    -
+    !validate
+    ?Failed
+    ?\[error\]
+    ?$NCS_PROMPT_CONF
+    !revert no-confirm
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+    # Check that we won't allow exlusions to contain other exclusions
+    !set resource-pools ip-address-pool z exclude 83.131.11.180 31
+    ?$NCS_PROMPT_CONF
+    -
+    !validate
+    ?Failed.*Exclusions.*overlap
+    ?\[error\]
+    ?$NCS_PROMPT_CONF
+    !revert no-confirm
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+    # Verify that either of the subnets are okay.
+    !set resource-pools ip-address-pool z exclude 83.131.11.130 32
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool z exclude 83.131.11.181 32
+    ?$NCS_PROMPT_CONF
+    -
+    !validate
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+    !revert no-confirm
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+    # Verify that allocations are re-allocated when the pool allows it
+    !delete resource-pools ip-address-pool management subnet
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management exclude
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools ip-address-pool management
+    # """??
+    # allocation a {
+    #     response {
+    #         error "com.tailf.pkg.ipam.exceptions.AddressPoolEmptyException: No addresses available";
+    #     }
+    # }
+    # """
+    ?allocation a
+    ?error.*AddressPoolEmptyException: No addresses available
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management subnet 192.168.2.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools ip-address-pool management
+    """??
+    allocation a {
+        response {
+            subnet 192.168.2.1/32;
+            from   192.168.2.0/24;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    !set services ip-loop a device cisco-ios0 pool management unit 4 description foo
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool management auto-redeploy false
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !show devices device cisco-ios0 config ios:interface Loopback 4 description
+    ?description /192.168.2.1;
+    ?$NCS_PROMPT_CONF
+    !delete resource-pools ip-address-pool management subnet
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool management subnet 192.168.3.0 24
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !request services ip-loop a re-deploy
+    # The service is actually re-deployed by ipaddress-allocator, this
+    # re-deploy is just here to block the lux script until the service
+    # is definitely re-deployed.
+    ?$NCS_PROMPT_CONF
+    !show devices device cisco-ios0 config ios:interface Loopback 4 description
+    ?description /192.168.3.1;
+    ?$NCS_PROMPT_CONF
+
+[shell jvm-log-check]
+    [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

@@ -1,0 +1,42 @@
+[doc Test that an alarm is not triggered when a pool is deleted]
+
+[include ../../luxinc/resource-manager.luxinc]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli-config]
+
+    [invoke log "Setting up environment"]
+
+    !set java-vm java-logging logger com.tailf.pkg level level-debug
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool test-id range start 1 end 10
+    ?$NCS_PROMPT_CONF
+    !set resource-pools ip-address-pool test-ip range 10.10.10.1 10.10.10.100
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show alarms alarm-list alarm
+    ?No entries found.
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+    [invoke log "Deleting pools and checking that alarm is not triggered"]
+
+    !delete resource-pools
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show alarms alarm-list alarm
+    ?No entries found.
+    ?\[ok\]
+    ?$NCS_PROMPT_CONF
+
+[cleanup]
+    [invoke ncs-cleanup]

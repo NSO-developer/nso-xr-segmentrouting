@@ -1,0 +1,6 @@
+ralloc:resource-pools {
+    ralloc:ip-address-pool z3 {
+        ipalloc:subnet 83.131.11.160 27;
+        ipalloc:exclude 83.131.11.161 32;
+    }
+}

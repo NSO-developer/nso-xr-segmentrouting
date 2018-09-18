@@ -1,0 +1,217 @@
+[
+ {
+  "basepath": "Cisco-IOS-XR-clns-isis-oper:isis/instances/instance/topologies/topology/ipv4-routes/ipv4-route",
+  "spec": {
+   "fields": [{
+    "name": "native-status",
+    "fields": [{
+     "name": "native-details",
+     "fields": [{
+      "name": "primary",
+      "fields": [{
+       "name": "sources",
+       "fields": [
+        {
+         "name": "nodal-sids",
+         "fields": [{
+          "name": "sid-value"
+         }]
+        },{
+         "name": "source-address"
+        }
+       ]
+      }]
+     }]
+    }]
+   }]
+  }
+ },
+  {
+    "basepath": "Cisco-IOS-XR-clns-isis-oper:isis/instances/instance/topologies/topology/frr-summary",
+    "spec": {
+      "fields": [
+        {
+          "name": "af-name"
+        },
+        {
+          "name": "instance-name"
+        },
+        {
+          "name": "saf-name"
+        },
+        {
+          "name" : "level2-prefixes",
+          "fields" : [
+             {"name" : "all-paths-protected",
+                "fields" : [
+                   {
+                   "name" : "medium"
+                   },
+                   {
+                   "name" : "low"
+                   },
+                   {
+                   "name" : "high"
+                   },
+                   {
+                   "name" : "critical"
+                   }
+                ]
+             },
+             {"name" : "some-paths-protected",
+                "fields" : [
+                   {
+                   "name" : "medium"
+                   },
+                   {
+                   "name" : "low"
+                   },
+                   {
+                   "name" : "high"
+                   },
+                   {
+                   "name" : "critical"
+                   }
+                ]
+             },
+             {"name" : "unprotected",
+                "fields" : [
+                   {
+                   "name" : "medium"
+                   },
+                   {
+                   "name" : "low"
+                   },
+                   {
+                   "name" : "high"
+                   },
+                   {
+                   "name" : "critical"
+                   }
+                ]
+             }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "basepath": "Cisco-IOS-XR-infra-statsd-oper:infra-statistics/interfaces/interface/latest/generic-counters",
+    "spec": {
+      "fields": [
+        {
+          "name": "packets-received"
+        },
+        {
+          "name": "bytes-received"
+        },
+        {
+          "name": "packets-sent"
+        },
+        {
+          "name": "bytes-sent"
+        },
+        {
+          "name": "multicast-packets-received"
+        },
+        {
+          "name": "broadcast-packets-received"
+        },
+        {
+          "name": "multicast-packets-sent"
+        },
+        {
+          "name": "broadcast-packets-sent"
+        },
+        {
+          "name": "output-drops"
+        },
+        {
+          "name": "output-queue-drops"
+        },
+        {
+          "name": "input-drops"
+        },
+        {
+          "name": "input-queue-drops"
+        },
+        {
+          "name": "runt-packets-received"
+        },
+        {
+          "name": "giant-packets-received"
+        },
+        {
+          "name": "throttled-packets-received"
+        },
+        {
+          "name": "parity-packets-received"
+        },
+        {
+          "name": "unknown-protocol-packets-received"
+        },
+        {
+          "name": "input-errors"
+        },
+        {
+          "name": "crc-errors"
+        },
+        {
+          "name": "input-overruns"
+        },
+        {
+          "name": "framing-errors-received"
+        },
+        {
+          "name": "input-ignored-packets"
+        },
+        {
+          "name": "input-aborts"
+        },
+        {
+          "name": "output-errors"
+        },
+        {
+          "name": "output-underruns"
+        },
+        {
+          "name": "output-buffer-failures"
+        },
+        {
+          "name": "output-buffers-swapped-out"
+        },
+        {
+          "name": "applique"
+        },
+        {
+          "name": "resets"
+        },
+        {
+          "name": "carrier-transitions"
+        },
+        {
+          "name": "availability-flag"
+        },
+        {
+          "name": "last-data-time"
+        },
+        {
+          "name": "seconds-since-last-clear-counters"
+        },
+        {
+          "name": "last-discontinuity-time"
+        },
+        {
+          "name": "seconds-since-packet-received"
+        },
+        {
+          "name": "seconds-since-packet-sent"
+        },
+        {
+          "name": "interface-name",
+          "tag": true
+        }
+      ]
+    }
+  }
+]

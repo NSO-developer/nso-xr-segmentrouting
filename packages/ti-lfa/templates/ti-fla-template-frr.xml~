@@ -1,0 +1,45 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+    <device>
+      <name>{$DEVICE}</name>
+      <config>
+	<isis xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-clns-isis-cfg">
+	  <instances>
+	    <instance>
+              <instance-name>{$ISIS-ID}</instance-name>
+	      <interfaces>
+		<interface>
+		  <interface-name>{$INTERFACE-NAME}{$INTERFACE-ID}</interface-name>
+		  <interface-afs>
+		    <interface-af>
+                      <af-name>{$ADDRESS-FAMILY}</af-name>
+                      <saf-name>unicast</saf-name>
+                      <interface-af-data>
+			<interface-frr-table>
+			  <frrtilfa-types>
+                            <frrtilfa-type>
+                              <level>not-set</level>
+                            </frrtilfa-type>
+                          </frrtilfa-types>
+			  <frr-types>
+			    <frr-type>
+                              <level>not-set</level>
+			      <type>per-prefix</type>
+			    </frr-type>
+			  </frr-types>
+			</interface-frr-table>
+                      </interface-af-data>
+		    </interface-af>
+		  </interface-afs>
+		</interface>
+              </interfaces>
+	    </instance>
+	  </instances>
+	</isis>
+      </config>
+    </device>
+  </devices>
+</config-template>
+
+
+

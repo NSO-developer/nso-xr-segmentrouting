@@ -1,0 +1,83 @@
+module id-allocator-oper {
+
+  namespace "http://tail-f.com/pkg/id-allocator-oper";
+
+  prefix idalloc-oper;
+
+  import tailf-common {
+    prefix tailf;
+  }
+
+  import resource-allocator {
+    prefix ralloc;
+  }
+
+  import id-allocator {
+    prefix idalloc;
+  }
+
+  organization "Tail-f Systems";
+  description
+     "This module contains the operational schema of the id-allocator package.";
+
+  revision 2015-10-20 {
+     description "Initial revision.";
+  }
+
+  // This is the id-pool operational schema structure
+  container id-allocator {
+    config false;
+    list pool {
+      key "name";
+      leaf name {
+        type string;
+      }
+      container range {
+        uses idalloc:range-grouping {
+          refine "start" {
+            mandatory true;
+            description "The start of the range";
+            tailf:info "Range start";
+          }
+          refine "end" {
+            mandatory true;
+            description "The end of the range";
+            tailf:info "Range end";
+          }
+        }
+        description
+          "Copy of configured range.";
+      }
+
+      list exclude {
+        key "start end";
+        uses idalloc:range-grouping;
+        description
+          "Id:s in range, but not available for allocation.";
+        tailf:info "Id:s in range but excluded";
+        tailf:cli-suppress-mode;
+      }
+      list available {
+        key "start end";
+        uses idalloc:range-grouping;
+        description
+          "Id ranges available for allocation.";
+        tailf:info "Available id ranges";
+        tailf:cli-suppress-mode;
+      }
+      list allocation {
+        key "id";
+        description
+          "Allocated ranges.";
+        tailf:info "Allocated ranges";
+        leaf id {
+          type uint32;
+        }
+       tailf:cli-suppress-mode;
+      }
+    }
+    tailf:cdb-oper {
+      tailf:persistent true;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+  <device>
+    <name>{$DEVICE}</name>
+    <config>
+      <isis xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-clns-isis-cfg">
+        <instances>
+          <instance>
+            <instance-name>{$INSTANCE-NAME}</instance-name>
+            <overload-bits>
+	      <overload-bit>
+                <level>not-set</level>
+              </overload-bit>
+            </overload-bits>
+	    <running/>
+          </instance>
+        </instances>
+      </isis>
+    </config>
+  </device>
+  </devices>
+</config-template>

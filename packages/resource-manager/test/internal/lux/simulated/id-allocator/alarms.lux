@@ -1,0 +1,382 @@
+[doc Test of ipaddress allocator]
+
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../luxinc/resource-manager.luxinc]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli]
+    [invoke check-pkgs]
+    [invoke sync-from-device]
+    [invoke ncs-enter-config]
+
+    !set java-vm java-logging logger com.tailf.pkg level level-debug
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    # =========================================================================
+    [invoke log "\nENABLE alarms\n"]
+    !set resource-pools id-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    [invoke log "1. Testing exhausted alarm using the default strategy (firstfree)"]
+    !set resource-pools id-pool mypool range start 0 end 0
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ## Create a new allocation for mypool
+    !set resource-pools id-pool mypool allocation a1 username admin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    #We should see the line in the cli session:
+    #   *** ALARM id-pool-exhausted: Pool is empty
+    #?ALARM id-pool-exhausted: Pool is empty
+    ?.*ALARM id-pool-exhausted: Pool is empty
+
+    #The allocation got the only id available in the pool,
+    # Note that there are no availables:
+    !run show status id-allocator
+    ???pool mypool {
+    ???allocation 0;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !run show alarms alarm-list alarm ncs
+    # We check some more features the 1st run
+    ???alarms alarm-list alarm ncs id-pool-exhausted mypool ""
+    ???is-cleared              false
+    ???last-perceived-severity major
+    ???last-alarm-text         "Pool is empty"
+    ???perceived-severity major
+    ???alarm-text         "Pool is empty"
+
+    [invoke log "Verify that deleting the pool clears the alarm "]
+    !delete resource-pools id-pool mypool
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !run show status id-allocator
+    ?No entries found\.
+
+    # The alarm is still there but the 'is-cleared' is set to true
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-exhausted mypool ""
+    ???is-cleared              true
+    ???perceived-severity cleared
+
+
+    # We clear all alarms to reset before next tc
+    [invoke purge-alarm]
+
+    # =========================================================================
+    [invoke log "2. Testing exhausted ALARM Testing using the roundrobin strategy"]
+
+    !set resource-pools id-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool mypool range start 20 end 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools id-pool mypool allocation a1 username admin request method roundrobin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ?.*ALARM id-pool-exhausted: Pool is empty
+
+    !run show status id-allocator
+    ???pool mypool {
+    ???allocation 20;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-exhausted mypool ""
+    ???is-cleared              false
+
+    [invoke log "6. Verify that deleting the pool removes the alarm "]
+    !delete resource-pools id-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ?No entries found\.
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-exhausted mypool ""
+    ???is-cleared              true
+    ???perceived-severity cleared
+
+
+    [invoke purge-alarm]
+
+    # =========================================================================
+    [invoke log "3. Testing exhausted ALARM requesting a specific id\n"]
+    !set resource-pools id-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool mypool range start 20 end 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ## Create a new allocation for mypool
+    !set resource-pools id-pool mypool allocation a1 username admin request id 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ?.*ALARM id-pool-exhausted: Pool is empty
+
+    #The allocation got the only id available in the pool:
+    !run show status id-allocator
+    ???pool mypool {
+    ???allocation 20;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-exhausted mypool ""
+    ???is-cleared              false
+
+    [invoke log "4.1.1 Verify that increasing the range size removes the alarm\n"]
+    !set resource-pools id-pool mypool range start 20 end 21
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-exhausted mypool ""
+    ???is-cleared              true
+    ???perceived-severity cleared
+
+    # =========================================================================
+    [invoke log "4.1 Testing exhausted alarm when we change the size of the range"]
+    !set resource-pools id-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool mypool range start 20 end 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ?.*ALARM id-pool-exhausted: Pool is empty
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-exhausted mypool ""
+    ???is-cleared              false
+    ???perceived-severity major
+
+    !delete resource-pools id-pool mypool
+    [invoke commit]
+
+    !run show status id-allocator
+    ?No entries found\.
+    [invoke purge-alarm]
+
+    # =========================================================================
+    [invoke log "7. Testing threshold ALARM using firstfree\n"]
+    !set resource-pools id-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool mypool range start 0 end 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [loop alloc 0..18]
+    !set resource-pools id-pool mypool allocation ${alloc} username admin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+    [endloop]
+
+    ?.*ALARM id-pool-low-threshold-reached: Pool is getting close to empty
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-low-threshold-reached mypool ""
+    ???is-cleared              false
+    ???last-perceived-severity major
+    ???last-alarm-text         "Pool is getting close to empty"
+    ???perceived-severity major
+    ???alarm-text         "Pool is getting close to empty"
+
+    [invoke log "Verify that increasing the range size removes the alarm\n"]
+    !set resource-pools id-pool mypool range start 0 end 40
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-low-threshold-reached mypool ""
+    ???is-cleared              true
+    ???perceived-severity cleared
+
+    [invoke log "Verify that decreasing the range size introduces the alarm\n"]
+    !set resource-pools id-pool mypool range start 0 end 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-low-threshold-reached mypool ""
+    ???is-cleared              false
+    ???perceived-severity major
+
+    [invoke log "Verify that removing the pool removes the alarm\n"]
+    !delete resource-pools id-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status id-allocator
+    ?No entries found\.
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-low-threshold-reached mypool ""
+    ???is-cleared              true
+    ???perceived-severity cleared
+
+    [invoke purge-alarm]
+
+    # ===========================================================================
+    [invoke log "8 Testing threshold ALARM using roundrobin\n"]
+    !set resource-pools id-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+
+    !set resource-pools id-pool mypool range start 0 end 20
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [loop alloc 0..18]
+    !set resource-pools id-pool mypool allocation ${alloc} username admin request method roundrobin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+    [endloop]
+
+    ?.*ALARM id-pool-low-threshold-reached: Pool is getting close to empty
+    # !set resource-pools id-pool mypool allocation final_drop username admin
+    # ?$NCS_PROMPT_CONF
+    # [invoke commit]
+    # [timeout 20]
+
+    [invoke purge-alarm]
+    !delete resource-pools id-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    # #TODO:
+    # HOWTO verify that we only have raised the alarm once?
+
+    # =========================================================================
+    [invoke log "9 Make sure no alarm is raised if disabled"]
+    !set resource-pools id-pool mypool range start 0 end 0
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ## Create a new allocation for mypool
+    !set resource-pools id-pool mypool allocation a1 username admin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    #The allocation got the only id available in the pool,
+    # Note that there are no availables:
+    !run show status id-allocator
+    ???pool mypool {
+    ???allocation 0;
+    ???}
+    ?$NCS_PROMPT_CONF
+
+    !run show alarms
+    ???alarms summary majors 0
+
+    [invoke purge-alarm]
+    !delete resource-pools id-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+
+    # =========================================================================
+    [invoke log "10 Set custom threshold"]
+    !set resource-pools id-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool mypool range start 1 end 3
+    ?$NCS_PROMPT_CONF
+    !set resource-pools id-pool mypool alarms low-threshold-alarm 50
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    ## Create a new allocation for mypool
+    [loop alloc 1..2]
+    !set resource-pools id-pool mypool allocation alloc${alloc} username admin
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+    [endloop]
+
+    !run show status id-allocator
+    """?
+    pool mypool {
+        available 3 3;
+        allocation 1;
+        allocation 2;
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-low-threshold-reached mypool ""
+    ???is-cleared              false
+    ???last-perceived-severity major
+    ???last-alarm-text         "Pool is getting close to empty"
+    ???perceived-severity major
+    ???alarm-text         "Pool is getting close to empty"
+
+    [invoke log "Lowering threshold, removes alarm"]
+    !set resource-pools id-pool mypool alarms low-threshold-alarm 10
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke wait-for-ncs-cmd-cfg "run show alarms alarm-list alarm ncs id-pool-low-threshold-reached mypool \"\" is-cleared" "is-cleared true"]
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-low-threshold-reached mypool ""
+    ???is-cleared              true
+    ???last-perceived-severity major
+
+    [invoke log "Increasing threshold, reintroduces alarm"]
+    !set resource-pools id-pool mypool alarms low-threshold-alarm 50
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show alarms alarm-list alarm ncs
+    ???alarms alarm-list alarm ncs id-pool-low-threshold-reached mypool ""
+    ???is-cleared              false
+    ???last-perceived-severity major
+    ???last-alarm-text         "Pool is getting close to empty"
+    ???perceived-severity major
+    ???alarm-text         "Pool is getting close to empty"
+
+    [invoke log "Verify alarms are cleared when alarms are disabled"]
+    !delete resource-pools id-pool mypool alarms enabled
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show alarms alarm-list alarm ncs
+    # We check some more features the 1st run
+    ???alarms alarm-list alarm ncs id-pool-low-threshold-reached mypool ""
+    ???is-cleared              true
+    ???last-perceived-severity major
+
+    [invoke purge-alarm]
+    !delete resource-pools id-pool mypool
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    [invoke ncs-exit-config]
+
+    !exit
+    ?SH-PROMPT:
+    [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

@@ -1,0 +1,73 @@
+module sr-ms {
+  namespace "http://com/example/srms";
+  prefix sr-ms;
+
+  import ietf-inet-types { prefix inet; }
+  import tailf-ncs { prefix ncs; }
+  import tailf-common { prefix tailf; }
+
+  augment /ncs:services {
+
+  list sr-ms {
+     key "name";
+
+     uses ncs:service-data;
+     ncs:servicepoint "srms-servicepoint";
+
+     leaf name {
+       tailf:info "Unique service id";
+       tailf:cli-allow-range;
+        type string;
+     }
+
+
+     list router {
+       key "device-name";
+       tailf:info "Core Node Device List";
+
+       leaf device-name {
+         tailf:info "Core Node Device name";
+     	 mandatory true;
+         type leafref {
+            path "/ncs:devices/ncs:device/ncs:name";
+	 }
+	}
+
+	leaf address-family {
+          tailf:info "Mapping Server Address Family";
+          type string {
+            length "4";
+            pattern "ipv[46]";
+          }
+        }
+
+      	leaf ipv4-address {
+          tailf:info "Starting IPv4 address";
+          type inet:ipv4-address;
+      	}
+
+      	leaf prefix-length {
+          tailf:info "prefix-length";
+          type uint16 {
+            range "0..32";
+          }
+        }
+
+      	leaf first-sid-value {
+          tailf:info "start of sid index range";
+          type uint32 {
+            range "0..1048575";
+          }
+        }
+
+      leaf number-of-allocated-sids {
+        tailf:info "number of allocated sids";
+        type uint32 {
+          range "0..1048575";
+        }
+      }
+
+    }
+  }
+ }
+}

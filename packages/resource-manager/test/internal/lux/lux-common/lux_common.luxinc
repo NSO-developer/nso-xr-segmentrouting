@@ -1,0 +1,523 @@
+# === Globals ==================================================================
+
+[global LUX_COMMON_VERSION=0.0.0]
+[global fail_pattern=[Ee][Rr][Rr][Oo][Rr]]
+
+# === Utils ====================================================================
+
+[global SHELL_PROMPT=SH-PROMPT]
+
+# --- General ------------------------------------------------------------------
+
+[macro log message]
+    [progress \n$message\n]
+[endmacro]
+
+[macro wait-for command match max_time prompt]
+    [loop i 1..$max_time]
+        @$match
+        !$command
+        ??$command
+        ?$prompt
+        [sleep 1]
+    [endloop]
+    ?$prompt
+[endmacro]
+
+# --- Shell --------------------------------------------------------------------
+
+[macro exec command]
+    [invoke do-exec $command 0]
+[endmacro]
+
+[macro do-exec command return_code]
+    !$command
+    ?$SHELL_PROMPT
+    !echo ==$$?==
+    ?==$return_code==
+    ?$SHELL_PROMPT
+[endmacro]
+
+[macro wait-for-cmd command match]
+    [invoke do-wait-for-cmd $command $match 60]
+[endmacro]
+
+[macro do-wait-for-cmd command match max_time]
+    [invoke wait-for $command $match $max_time $SHELL_PROMPT]
+[endmacro]
+
+[macro if-then test then]
+    [invoke if $test $then noop]
+[endmacro]
+
+[macro if test then else]
+    !RES=`(test $test && echo %%%$then%%%) || echo %%%$else%%%`
+    ?$SHELL_PROMPT
+
+    !echo $$RES
+    ?%%%(.*)%%%
+    [my macro=$1]
+    ?$SHELL_PROMPT
+
+    [invoke $macro]
+[endmacro]
+
+[macro noop]
+[endmacro]
+
+[macro save-dir]
+    !pwd
+    """?
+    pwd
+    (.*)
+    $SHELL_PROMPT
+    """
+    [global DIR=$1]
+
+    !echo DIR = $DIR
+    ?DIR
+    ?$SHELL_PROMPT
+[endmacro]
+
+# === NCS ======================================================================
+
+# Kill all lingering NCS and Confd processes if we are running in Jenkins and
+# deduce if we should run NCS in the foreground or background.
+[shell ncs-cleanup]
+    [invoke if-then "-n $$BUILD_ID" pkill-ncs-confd]
+
+    !RES=`(test -n "$$DEBUG_TEST" && echo %%%background%%%) || echo %%%foreground%%%`
+    ?$SHELL_PROMPT
+    !echo $$RES
+    ?%%%(.*)%%%
+    [global NCS_START_WAY=$1]
+    ?$SHELL_PROMPT
+
+[global NCS_ENV=]
+[global TEST_NCS_DIR=./ncs]
+[global NCS_PROMPT_OPER=ncs-oper>]
+[global NCS_PROMPT_CONF=ncs-cfg%]
+
+[global DEFAULT_NCS_CMD_TIMEOUT=30]
+
+[macro pkill-ncs-confd]
+    !pkill ncs.smp
+    ?SH-PROMPT
+    !pkill confd.smp
+    ?SH-PROMPT
+    !netstat -tapn
+    ?SH-PROMPT
+[endmacro]
+
+[macro ncs-stop]
+    [my old=$LUX_SHELLNAME]
+    [my env=$NCS_ENV]
+
+    [shell internal-ncs-stop-$old]
+    [timeout $DEFAULT_NCS_CMD_TIMEOUT]
+    [local NCS_ENV=$env]
+    [invoke log "Stopping NCS"]
+    [invoke ncs-cmd "--stop || true"]
+
+    [shell $old]
+[endmacro]
+
+[macro ncs-start]
+    [invoke do-ncs-start 1 $DEFAULT_NCS_CMD_TIMEOUT]
+[endmacro]
+
+[macro do-ncs-start n timeout]
+    [invoke ncs-start-$NCS_START_WAY $n $timeout]
+[endmacro]
+
+[macro ncs-start-foreground n timeout]
+    [my old=$LUX_SHELLNAME]
+    [my env=$NCS_ENV]
+    [my ncs_dir=$TEST_NCS_DIR]
+
+    [shell internal-ncs-start-$n-$old]
+    -Cannot bind to internal socket
+    [invoke log "Starting NCS"]
+    !env $env ncs --foreground --cd $ncs_dir -c $ncs_dir/ncs.conf
+
+    [shell internal-wait-started-$n-$old]
+    [timeout $timeout]
+    [invoke exec "env $env ncs --wait-started $timeout"]
+
+    [shell $old]
+[endmacro]
+
+[macro ncs-start-background n timeout]
+    [my old=$LUX_SHELLNAME]
+    [my env=$NCS_ENV]
+    [my ncs_dir=$TEST_NCS_DIR]
+
+    [shell internal-ncs-start-$old]
+    [timeout $timeout]
+    [local NCS_ENV=$env]
+    [invoke log "Starting NCS"]
+    [invoke ncs-cmd "--cd $ncs_dir -c $ncs_dir/ncs.conf"]
+
+    [shell $old]
+[endmacro]
+
+[macro ncs-clean]
+    [invoke log "Cleaning up NCS"]
+    !rm -rf ${TEST_NCS_DIR}/ncs-cdb/* ${TEST_NCS_DIR}/state/* ${TEST_NCS_DIR}/logs/*
+    ?SH-PROMPT
+[endmacro]
+
+[macro ncs-stop-clean-start]
+    [invoke netsim-stop-all]
+    [invoke ncs-stop]
+    [invoke ncs-clean]
+    [invoke ncs-start]
+[endmacro]
+
+[macro ncs-cli]
+    [invoke ncs-cli-cmd "-u admin --interactive"]
+    ?admin connected from.*
+    ?.*>
+    [invoke ncs-set-prompts]
+    !set paginate false
+    ?$NCS_PROMPT_OPER
+    !set autowizard false
+    ?$NCS_PROMPT_OPER
+    !set terminal lux
+    ?$NCS_PROMPT_OPER
+[endmacro]
+
+[macro ncs-cli-c]
+    [invoke ncs-cli-cmd "-u admin --interactive -C"]
+    ?admin connected from.*
+    ?.*#
+    [invoke ncs-set-prompts-c]
+    !paginate false
+    ?$NCS_PROMPT_OPER
+    !autowizard false
+    ?$NCS_PROMPT_OPER
+    !terminal lux
+    ?$NCS_PROMPT_OPER
+[endmacro]
+
+[macro ncs-cli-config]
+    [invoke ncs-cli]
+    [invoke ncs-enter-config]
+[endmacro]
+
+[macro ncs-cli-config-c]
+    [invoke ncs-cli-c]
+    [invoke ncs-enter-config]
+[endmacro]
+
+[macro ncs-set-prompts]
+    !set prompt1 "$NCS_PROMPT_OPER "
+    ?\[ok\]
+    ?$NCS_PROMPT_OPER
+    !set prompt2 "$NCS_PROMPT_CONF "
+    ?\[ok\]
+    ?$NCS_PROMPT_OPER
+[endmacro]
+
+[macro ncs-set-prompts-c]
+    !prompt1 "$NCS_PROMPT_OPER "
+    ?$NCS_PROMPT_OPER
+    !prompt2 "$NCS_PROMPT_CONF "
+    ?$NCS_PROMPT_OPER
+[endmacro]
+
+[macro ncs-cleanup]
+    [local ncs_node_name=ncs]
+    [invoke do-ncs-cleanup]
+[endmacro]
+
+[macro do-ncs-cleanup]
+    !if [ "$LUX_START_REASON" = "fail" ]; then mkdir -p $LUX_EXTRA_LOGS/$ncs_node_name; cp -r ${TEST_NCS_DIR}/logs $LUX_EXTRA_LOGS/$ncs_node_name; fi; true
+    ?SH-PROMPT
+    !if [ "$LUX_START_REASON" = "fail" ]; then mkdir -p $LUX_EXTRA_LOGS/$ncs_node_name; (cd ${TEST_NCS_DIR} && find netsim/ -name '*.log' -or -name 'confderr.log.*' | cpio -pdm $LUX_EXTRA_LOGS/$ncs_node_name); fi; true
+    ?SH-PROMPT
+    [invoke if-then "\"$$DEBUG_TEST\" != \"true\"" ncs-netsim-stop]
+[endmacro]
+
+[macro ncs-netsim-stop]
+    [invoke netsim-stop-all]
+    [invoke ncs-stop]
+    [invoke netsim-delete-network]
+[endmacro]
+
+[macro ncs-enter-config]
+    !config
+    ?$NCS_PROMPT_CONF
+[endmacro]
+
+[macro ncs-exit-config]
+    !top
+    ?$NCS_PROMPT_CONF
+    !exit
+    ?$NCS_PROMPT_OPER
+[endmacro]
+
+[macro ncs-cmd args]
+    [invoke exec "env $NCS_ENV ncs $args"]
+[endmacro]
+
+[macro ncs-cli-cmd args]
+    !env $NCS_ENV ncs_cli $args
+[endmacro]
+
+[macro ncs-cmd-cmd args]
+    [invoke exec "env $NCS_ENV ncs_cmd $args"]
+[endmacro]
+
+[macro wait-for-ncs-cmd-oper command match]
+    [invoke do-wait-for-ncs-cmd-oper $command $match 60]
+[endmacro]
+
+[macro do-wait-for-ncs-cmd-oper command match max_time]
+    [invoke wait-for $command $match $max_time $NCS_PROMPT_OPER]
+[endmacro]
+
+[macro wait-for-ncs-cmd-cfg command match]
+    [invoke do-wait-for-ncs-cmd-cfg $command $match 60]
+[endmacro]
+
+[macro do-wait-for-ncs-cmd-cfg command match max_time]
+    [invoke wait-for $command $match $max_time $NCS_PROMPT_CONF]
+[endmacro]
+
+[macro commit]
+    !commit
+    -[Ee][Rr][Rr][Oo][Rr]
+    ?Commit complete.|No modifications to commit.
+    ?$NCS_PROMPT_CONF
+    -
+[endmacro]
+
+[macro commit-label label]
+    !commit label $label
+    -[Ee][Rr][Rr][Oo][Rr]
+    ?Commit complete.|No modifications to commit.
+    ?$NCS_PROMPT_CONF
+    -
+[endmacro]
+
+[macro rollback]
+    !rollback
+    ?$NCS_PROMPT_CONF
+[endmacro]
+
+# === Local NCS ================================================================
+
+[global local_ncs_name=ncs-node-]
+
+[global base_port_cli_ssh=42024]
+[global base_port_netconf_ssh=42022]
+[global base_port_netconf_tcp=42023]
+[global base_port_webui_tcp=48080]
+[global base_port_webui_ssl=48888]
+[global base_port_ipc=44569]
+[global port_ha=44570]
+
+[macro local-ncs-initialize n]
+    [timeout 120]
+
+    [invoke local-ncs-cmd $n netsim-stop-all]
+    [invoke local-ncs-stop $n]
+
+    [invoke exec "rm -rf $DIR/$local_ncs_name$n || true"]
+    [invoke exec "cp -rd $TEST_NCS_DIR $DIR/$local_ncs_name$n"]
+    [invoke local-ncs-cmd $n ncs-clean]
+
+    [invoke exec "perl -pi -e '$$o=($n-1)*10;' -e '$$p=${base_port_netconf_ssh}+$$o; s|<port>${base_port_netconf_ssh}</port>|<port>$$p</port>|;' -e '$$p=${base_port_cli_ssh}+$$o; s|<port>${base_port_cli_ssh}</port>|<port>$$p</port>|;' -e '$$p=${base_port_webui_tcp}+$$o; s|<port>${base_port_webui_tcp}</port>|<port>$$p</port>|;' -e '$$p=${base_port_webui_ssl}+$$o; s|<port>${base_port_webui_ssl}</port>|<port>$$p</port>|;' -e '$$p=${base_port_ipc}+$$o; s|</load-path>|</load-path>\n  <ncs-ipc-address><port>$$p</port></ncs-ipc-address>|;' -e 's|\@ncs|\@$local_ncs_name$n|g;' -e '$$p=${port_ha}; s|</ncs-config>|  <ha><enabled>true</enabled><ip>127.0.0.1</ip><port>$$p</port></ha>\n</ncs-config>|;' -e 's|\s+<suppress-commit-message-context>system</suppress-commit-message-context>||;' $DIR/$local_ncs_name$n/ncs.conf"]
+[endmacro]
+
+[macro local-ncs-stop n]
+    [invoke log "Stopping NCS-$n"]
+    [invoke local-ncs-cmd $n ncs-stop]
+[endmacro]
+
+[macro local-ncs-start n]
+    [invoke log "Starting NCS-$n"]
+    [invoke local-ncs-cmd-2 $n do-ncs-start $n $DEFAULT_NCS_CMD_TIMEOUT]
+[endmacro]
+
+[macro local-ncs-cli n]
+    [invoke local-ncs-cmd $n ncs-cli]
+[endmacro]
+
+[macro local-ncs-cli-c n]
+    [invoke local-ncs-cmd $n ncs-cli-c]
+[endmacro]
+
+[macro local-ncs-startup num]
+    # Stop main NCS if it is running and clean the template dir
+    [invoke ncs-stop]
+    [invoke ncs-clean]
+
+    [loop n 1..$num]
+        [invoke local-ncs-initialize $n]
+        [invoke local-ncs-start $n]
+    [endloop]
+[endmacro]
+
+[macro local-ncs-cleanup num]
+    [loop n 1..$num]
+        [local ncs_node_name=$local_ncs_name$n]
+        [invoke local-ncs-cmd $n do-ncs-cleanup]
+    [endloop]
+[endmacro]
+
+[macro local-ncs-cmd n cmd]
+    [local PRE_NCS_ENV=$NCS_ENV]
+    [local NCS_ENV=node=$local_ncs_name$n sname=$local_ncs_name$n NCS_IPC_PORT=`echo $((($n - 1) * 10 + ${base_port_ipc}))`]
+
+    [local PRE_TEST_NCS_DIR=$TEST_NCS_DIR]
+    [local TEST_NCS_DIR=$DIR/$local_ncs_name$n]
+
+    [invoke $cmd]
+
+    [local NCS_ENV=$PRE_NCS_ENV]
+    [local TEST_NCS_DIR=$PRE_TEST_NCS_DIR]
+[endmacro]
+
+[macro local-ncs-cmd-1 n cmd arg1]
+    [local local_ncs_cmd=$cmd]
+    [local local_ncs_arg1=$arg1]
+
+    [invoke local-ncs-cmd $n do-local-ncs-cmd-1]
+[endmacro]
+
+[macro do-local-ncs-cmd-1]
+    [invoke $local_ncs_cmd $local_ncs_arg1]
+[endmacro]
+
+[macro local-ncs-cmd-2 n cmd arg1 arg2]
+    [local local_ncs_cmd=$cmd]
+    [local local_ncs_arg1=$arg1]
+    [local local_ncs_arg2=$arg2]
+
+    [invoke local-ncs-cmd $n do-local-ncs-cmd-2]
+[endmacro]
+
+[macro do-local-ncs-cmd-2]
+    [invoke $local_ncs_cmd $local_ncs_arg1 $local_ncs_arg2]
+[endmacro]
+
+[macro local-ncs-cmd-3 n cmd arg1 arg2 arg3]
+    [local local_ncs_cmd=$cmd]
+    [local local_ncs_arg1=$arg1]
+    [local local_ncs_arg2=$arg2]
+    [local local_ncs_arg3=$arg3]
+
+    [invoke local-ncs-cmd $n do-local-ncs-cmd-3]
+[endmacro]
+
+[macro do-local-ncs-cmd-3]
+    [invoke $local_ncs_cmd $local_ncs_arg1 $local_ncs_arg2 $local_ncs_arg3]
+[endmacro]
+
+# === Netsim ===================================================================
+
+[global NETSIM_ENV=]
+[global NETSIM_PROMPT_OPER=netsim-oper>]
+[global NETSIM_PROMPT_CONF=netsim-cfg%]
+
+[macro netsim-start prefix n]
+    [invoke log "Starting netsim"]
+    [invoke netsim-cmd "start $prefix$n"]
+[endmacro]
+
+[macro netsim-start-all]
+    [invoke log "Starting netsim"]
+    [invoke netsim-cmd "start"]
+[endmacro]
+
+[macro netsim-stop prefix n]
+    [invoke log "Stopping netsim"]
+    [invoke netsim-cmd "stop $prefix$n"]
+[endmacro]
+
+[macro netsim-stop-all]
+    [invoke log "Stopping netsim"]
+    [invoke netsim-cmd "stop || true"]
+[endmacro]
+
+[macro netsim-delete-network]
+    [invoke log "Deleting netsim network"]
+    [invoke netsim-cmd "delete-network"]
+[endmacro]
+
+[macro netsim-create-network type num prefix]
+    [invoke log "Creating netsim network"]
+    [invoke netsim-cmd "create-network ${TEST_NCS_DIR}/packages/$type $num $prefix"]
+[endmacro]
+
+[macro netsim-add-to-network type num prefix]
+    [invoke log "Creating netsim network"]
+    [invoke netsim-cmd "add-to-network ${TEST_NCS_DIR}/packages/$type $num $prefix"]
+[endmacro]
+
+[macro netsim-restart-all prefix num]
+    [loop n 1..$num]
+        [invoke netsim-restart $prefix "`echo $$(($n))`"]
+    [endloop]
+[endmacro]
+
+[macro netsim-restart prefix n]
+    [invoke netsim-cmd "restart $prefix$n"]
+[endmacro]
+
+[macro netsim-xml-init prefix n]
+    [invoke netsim-cmd "ncs-xml-init $prefix$n > $TEST_NCS_DIR/ncs-cdb/$prefix$n.xml"]
+[endmacro]
+
+[macro netsim-cmd args]
+    [invoke exec "env $NETSIM_ENV ncs-netsim --dir $TEST_NCS_DIR/netsim $args"]
+[endmacro]
+
+[macro netsim-cli prefix n]
+    !env $NETSIM_ENV ncs-netsim --dir $TEST_NCS_DIR/netsim cli $prefix$n
+    ?admin connected from.*
+    ?.*>
+    [invoke netsim-set-prompts]
+    !set paginate false
+    ?$NETSIM_PROMPT_OPER
+    !set autowizard false
+    ?$NETSIM_PROMPT_OPER
+    !set terminal lux
+    ?$NETSIM_PROMPT_OPER
+[endmacro]
+
+[macro netsim-cli-c prefix n]
+    !env $NETSIM_ENV ncs-netsim --dir $TEST_NCS_DIR/netsim cli-c $prefix$n
+    ?admin connected from.*
+    ?.*#
+    [invoke netsim-set-prompts-c]
+    !paginate false
+    ?$NETSIM_PROMPT_OPER
+    !autowizard false
+    ?$NETSIM_PROMPT_OPER
+    !terminal lux
+    ?$NETSIM_PROMPT_OPER
+[endmacro]
+
+[macro netsim-set-prompts]
+    !set prompt1 "$NETSIM_PROMPT_OPER "
+    ?\[ok\]
+    ?$NETSIM_PROMPT_OPER
+    !set prompt2 "$NETSIM_PROMPT_CONF "
+    ?\[ok\]
+    ?$NETSIM_PROMPT_OPER
+[endmacro]
+
+[macro netsim-set-prompts-c]
+    !prompt1 "$NETSIM_PROMPT_OPER "
+    ?$NETSIM_PROMPT_OPER
+    !prompt2 "$NETSIM_PROMPT_CONF "
+    ?$NETSIM_PROMPT_OPER
+[endmacro]
+
+# === Setup ====================================================================
+
+[shell test-case-setup]
+    [invoke save-dir]

@@ -1,0 +1,136 @@
+[doc "Test of ipaddress allocator"]
+
+[config skip=TAILFSKIP_JAVA]
+[config skip=TAILFSKIP_SUNOS]
+
+[include ../../../luxinc/resource-manager.luxinc]
+
+[global TEST_NCS_DIR=$DIR/../../../../../ncs]
+
+[shell startup]
+    -$fail_pattern
+    [invoke startup]
+
+[shell cli]
+    -$fail_pattern
+    [invoke ncs-cli]
+    [invoke check-pkgs]
+    [invoke ncs-enter-config]
+
+    !set java-vm java-logging logger com.tailf.pkg level level-debug
+    ?$NCS_PROMPT_CONF
+
+    [invoke commit]
+
+    !set resource-pools ip-address-pool management6 subnet 2001:db8:1234:: 100
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !set resource-pools ip-address-pool management6 allocation a username admin request subnet-size 120
+    ?$NCS_PROMPT_CONF
+    [invoke commit]
+
+    !run show status resource-pools
+    """??
+    ip-address-pool management6 {
+        allocation a {
+            response {
+                subnet 2001:db8:1234::/120;
+                from   2001:db8:1234::/100;
+            }
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    !run show status ip-allocator
+    """??
+    pool management6 {
+        subnet 2001:db8:1234:: 100;
+        available 2001:db8:1234::100 120;
+        available 2001:db8:1234::200 119;
+        available 2001:db8:1234::400 118;
+        available 2001:db8:1234::800 117;
+        available 2001:db8:1234::1000 116;
+        available 2001:db8:1234::2000 115;
+        available 2001:db8:1234::4000 114;
+        available 2001:db8:1234::8000 113;
+        available 2001:db8:1234::1:0 112;
+        available 2001:db8:1234::2:0 111;
+        available 2001:db8:1234::4:0 110;
+        available 2001:db8:1234::8:0 109;
+        available 2001:db8:1234::10:0 108;
+        available 2001:db8:1234::20:0 107;
+        available 2001:db8:1234::40:0 106;
+        available 2001:db8:1234::80:0 105;
+        available 2001:db8:1234::100:0 104;
+        available 2001:db8:1234::200:0 103;
+        available 2001:db8:1234::400:0 102;
+        available 2001:db8:1234::800:0 101;
+        allocation 2001:db8:1234:: 120 {
+            owner      "";
+            username   admin;
+            request-id a;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+    [invoke ncs-exit-config]
+
+    !exit
+    ?SH-PROMPT:
+
+[shell restart]
+    [timeout 120]
+    [invoke netsim-stop-all]
+    [invoke ncs-stop]
+    [invoke ncs-start]
+    [invoke netsim-start-all]
+
+[shell cli]
+    [invoke ncs-cli-config]
+
+    !run show status ip-allocator
+    """??
+    pool management6 {
+        subnet 2001:db8:1234:: 100;
+        available 2001:db8:1234::100 120;
+        available 2001:db8:1234::200 119;
+        available 2001:db8:1234::400 118;
+        available 2001:db8:1234::800 117;
+        available 2001:db8:1234::1000 116;
+        available 2001:db8:1234::2000 115;
+        available 2001:db8:1234::4000 114;
+        available 2001:db8:1234::8000 113;
+        available 2001:db8:1234::1:0 112;
+        available 2001:db8:1234::2:0 111;
+        available 2001:db8:1234::4:0 110;
+        available 2001:db8:1234::8:0 109;
+        available 2001:db8:1234::10:0 108;
+        available 2001:db8:1234::20:0 107;
+        available 2001:db8:1234::40:0 106;
+        available 2001:db8:1234::80:0 105;
+        available 2001:db8:1234::100:0 104;
+        available 2001:db8:1234::200:0 103;
+        available 2001:db8:1234::400:0 102;
+        available 2001:db8:1234::800:0 101;
+        allocation 2001:db8:1234:: 120 {
+            owner      "";
+            username   admin;
+            request-id a;
+        }
+    }
+    """
+    ?$NCS_PROMPT_CONF
+
+    [invoke ncs-exit-config]
+
+    -$fail_pattern
+
+    # Finish and exit ncs
+    !exit
+    ?SH-PROMPT
+    [invoke check-jvmlog]
+
+[cleanup]
+    [invoke ncs-cleanup]

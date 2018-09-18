@@ -1,0 +1,33 @@
+submodule ipaddress-allocator-alarms {
+  belongs-to ipaddress-allocator {
+    prefix ipalloc;
+  }
+
+  import tailf-ncs-alarms {
+    prefix al;
+  }
+
+  organization "Cisco";
+
+  revision "2017-02-09" {
+    description "Initial revision";
+  }
+
+  identity ip-address-allocation-alarm {
+    base al:alarm-type;
+    description "Alarms raised by the ip address allocator package.";
+  }
+
+  identity ip-address-pool-exhausted {
+    base ip-address-allocation-alarm;
+    description
+      "The IP address pool is empty";
+  }
+
+  identity ip-address-pool-low-threshold-reached {
+    base ip-address-allocation-alarm;
+    description
+      "The IP adress pool is running low on available IP addresses";
+  }
+
+}

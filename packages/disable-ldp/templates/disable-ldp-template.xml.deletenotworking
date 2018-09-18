@@ -1,0 +1,21 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0"
+                 servicepoint="disable-ldp">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+  <device>
+    <name>{/router/device-name}</name>
+      <config>
+                   <mpls-ldp xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-mpls-ldp-cfg">
+                     <default-vrf>
+                       <interfaces>
+                         <interface>
+                           <interface-name>{interface-type}{interface-id}</interface-name>
+                           <enable xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0"
+                                   nc:operation="delete"/>
+                         </interface>
+                       </interfaces>
+                     </default-vrf>
+                   </mpls-ldp>
+            </config>
+        </device>
+        </devices>
+      </config-template>
