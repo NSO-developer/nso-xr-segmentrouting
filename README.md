@@ -1,6 +1,11 @@
 # Provisioning and Orchestration of Segment Routing using NSO and IOS-XR Devices
 
-Maintaining Code/Repository : There can be many variations and uses-cases of Segment Routing Applications on different domains. Please feel free to clone the repository and you can use AS-IS or You can fork off different repository that have your custom changes.
+
+---------------------------------------------------------
+ Maintaining Code/Repository
+---------------------------------------------------------
+There can be many variations and uses-cases of Segment Routing Applications on different domains. This is an example and you can use it as is or fork a copy and make your changes.
+
 ---------------------------------------------------------
 Pre-requisites
 ---------------------------------------------------------
