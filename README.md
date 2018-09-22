@@ -50,5 +50,5 @@ Next Steps
 Deploying Services
 -----------------------------------------------------------------
 Please refer to the following CompassCoreTechnicalDocument-UserGuide.pdf in the repo  Document that guides and explains in details on how to deploy services.
-https://github.com/pkrunals/nso-xr-segmentrouting/blob/develop/CompassCoreTechnicalDocument-UserGuide.pdf
+https://github.com/NSO-developer/nso-xr-segmentrouting/blob/develop/CompassCoreTechnicalDocument-UserGuide.pdf
 
