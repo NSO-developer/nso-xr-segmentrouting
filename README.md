@@ -26,8 +26,8 @@ Getting Started : Setup Netsim and NCS Environment
 ---------------------------------------------------------
 
 First Time Setup
- 1. make pkg-update
-   This will get the required packages.
+1. cd packages/resource-manager/
+   make clean all
 
 Next Steps
 
