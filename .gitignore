@@ -1,0 +1,10 @@
+ncs-cdb
+netsim
+ncsc-out
+**/*.fxs
+**/namespaces/*
+**/load-dir/*
+**/private-jar/*
+**/shared-jar/*
+**/src/java/build/*
+**/*.pyc
