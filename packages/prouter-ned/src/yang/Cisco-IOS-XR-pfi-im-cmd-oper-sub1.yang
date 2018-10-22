@@ -335,7 +335,7 @@ submodule Cisco-IOS-XR-pfi-im-cmd-oper-sub1 {
         description "IPv4 AFI";
       }
       enum tunl-pfi-af-id-ipv6 {
-        value 26;
+        value 10;
         description "IPv6 AFI";
       }
     }
@@ -2998,6 +2998,10 @@ submodule Cisco-IOS-XR-pfi-im-cmd-oper-sub1 {
       enum im-attr-media-25gbase-cu5m {
         value 380;
         description "im attr media 25gbase cu5m";
+      }
+      enum im-attr-media-100gbase-sm-sr {
+        value 381;
+        description "im attr media 100gbase sm sr";
       }
     }
     description "Im attr media";

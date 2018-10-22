@@ -1647,6 +1647,9 @@ submodule Cisco-IOS-XR-drivers-media-eth-oper-sub1 {
       enum ethernet-25gbase-cu5m {
         description "Twinaxial copper cabling (5m)";
       }
+      enum ethernet-100gbase-sm-sr {
+        description "4 lane CWDM Lite cable";
+      }
       enum ethernet-base-max {
         description "ethernet base max";
       }

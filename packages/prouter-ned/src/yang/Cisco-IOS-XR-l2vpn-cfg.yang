@@ -297,10 +297,6 @@ module Cisco-IOS-XR-l2vpn-cfg {
         value 1;
         description "Single Active";
       }
-      enum port-active {
-        value 2;
-        description "Port Active";
-      }
     }
     description "Ethernet segment load balance";
   }
@@ -1109,6 +1105,16 @@ module Cisco-IOS-XR-l2vpn-cfg {
           cannot be configured together";
       }
       must "kbits-per-sec or pkts-per-sec";
+    }
+  }
+
+  grouping EVI-MCAST-SOURCE-CONNECTED {
+    description
+      "Common node of evi-multicast,
+      evpn-instance-multicast";
+    leaf evi-mcast-source-connected {
+      type empty;
+      description "Enable Multicast source connectivity";
     }
   }
 
@@ -4647,6 +4653,15 @@ module Cisco-IOS-XR-l2vpn-cfg {
             uses EVPN-ROUTE-TARGET-TABLE;
           }
 
+          container evi-multicast {
+            description "Enter Multicast configuration submode";
+            leaf enable {
+              type empty;
+              description "Enable Multicast";
+            }
+            uses EVI-MCAST-SOURCE-CONNECTED;
+          }
+
           container evi-advertise-mac {
             description
               "Enter Advertise local MAC-only routes
@@ -4800,6 +4815,15 @@ module Cisco-IOS-XR-l2vpn-cfg {
               description "Enable Advertise local MAC-only routes";
             }
             uses EVI-ADVERTISE-MAC-BVI;
+          }
+
+          container evpn-instance-multicast {
+            description "Enter Multicast configuration submode";
+            leaf enable {
+              type empty;
+              description "Enable Multicast";
+            }
+            uses EVI-MCAST-SOURCE-CONNECTED;
           }
 
           container evpn-instance-load-balancing {

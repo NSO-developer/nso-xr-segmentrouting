@@ -76,6 +76,10 @@ module Cisco-IOS-XR-mpls-ldp-oper {
         value 2;
         description "IPv6";
       }
+      enum all {
+        value 65535;
+        description "All";
+      }
     }
     description "Mpls ldp oper af name";
   }
@@ -684,13 +688,6 @@ module Cisco-IOS-XR-mpls-ldp-oper {
               uses LDP-DISCOVERY-ADJ-GRP-INFO;
             }
           }
-        }
-
-        container bindings-summary-all {
-          description
-            "Aggregate VRF counters for the LDP Label
-            Infomation Base (LIB)";
-          uses LDP-BINDING-SUMMARY;
         }
 
         container forwardings {

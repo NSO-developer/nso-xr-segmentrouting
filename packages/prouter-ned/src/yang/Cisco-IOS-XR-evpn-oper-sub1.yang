@@ -1542,6 +1542,10 @@ submodule Cisco-IOS-XR-evpn-oper-sub1 {
       type boolean;
       description "EVPN Instance is Regular/Stitching side";
     }
+    leaf multicast-source-connected {
+      type boolean;
+      description "EVI is connected to multicast source";
+    }
   }
 
   grouping L2VPN-EVPN-SUMMARY {

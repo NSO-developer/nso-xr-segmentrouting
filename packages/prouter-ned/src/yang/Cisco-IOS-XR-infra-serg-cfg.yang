@@ -69,7 +69,7 @@ module Cisco-IOS-XR-infra-serg-cfg {
         description "IPv4";
       }
       enum ipv6 {
-        value 26;
+        value 10;
         description "IPv6";
       }
     }

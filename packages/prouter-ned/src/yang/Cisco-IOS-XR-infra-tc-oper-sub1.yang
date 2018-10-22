@@ -257,7 +257,11 @@ submodule Cisco-IOS-XR-infra-tc-oper-sub1 {
     }
     leaf label-xr {
       type uint32;
-      description "Label";
+      description "SR Label";
+    }
+    leaf ldp-label {
+      type uint32;
+      description "LDP Label";
     }
     leaf is-active {
       type boolean;

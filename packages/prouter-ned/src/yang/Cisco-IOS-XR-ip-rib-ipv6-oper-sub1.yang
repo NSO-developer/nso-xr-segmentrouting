@@ -158,16 +158,6 @@ submodule Cisco-IOS-XR-ip-rib-ipv6-oper-sub1 {
     }
   }
 
-  grouping RIB-EDM-SRV6-SID {
-    description
-      "Information of SRv6 SID attribute installed in
-      the RIB";
-    leaf sid {
-      type inet:ipv6-address;
-      description "Segment Identifier Attribute";
-    }
-  }
-
   grouping RIB-EDM-NNH {
     description "Information of a NNH in path installed in RIB";
     leaf type {
@@ -421,10 +411,6 @@ submodule Cisco-IOS-XR-ip-rib-ipv6-oper-sub1 {
         type uint32;
         description "Interface Index attribute";
       }
-      leaf number-of-s-rv6sids {
-        type uint32;
-        description "Number of SRv6 Segment Identifiers";
-      }
       list remote-backup-addr {
         max-elements "2";
 
@@ -447,11 +433,6 @@ submodule Cisco-IOS-XR-ip-rib-ipv6-oper-sub1 {
       list next-next-hop {
         description "List of Next Next Hops";
         uses RIB-EDM-NNH;
-      }
-
-      list srv6sid {
-        description "List of SRv6 Segment Identifiers";
-        uses RIB-EDM-SRV6-SID;
       }
     }
   }
@@ -608,14 +589,6 @@ submodule Cisco-IOS-XR-ip-rib-ipv6-oper-sub1 {
       type uint64;
       units "nanosecond";
       description "Route modification time(nanoseconds)";
-    }
-    leaf has-s-rv6-func {
-      type boolean;
-      description "Route has some SRv6 func associated";
-    }
-    leaf srv6-func-str {
-      type string;
-      description "String representation of SRv6 func";
     }
   }
 

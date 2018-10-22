@@ -252,6 +252,10 @@ submodule Cisco-IOS-XR-ip-ntp-admin-oper-sub1 {
       type uint32;
       description "Index into filter shift register";
     }
+    leaf cast-flags {
+      type uint8;
+      description "Cast Flags";
+    }
 
     list filter-detail {
       max-elements "8";

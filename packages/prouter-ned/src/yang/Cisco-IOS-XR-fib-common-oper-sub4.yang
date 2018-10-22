@@ -1620,14 +1620,6 @@ submodule Cisco-IOS-XR-fib-common-oper-sub4 {
     }
   }
 
-  grouping FIB-SH-TBL-PATH-SRV6-INFO {
-    description "SRv6 path information for FIB table entries";
-    leaf srv6-sid-list {
-      type string;
-      description "SRv6 SID list";
-    }
-  }
-
   grouping FIB-SH-TBL-MPLS-LABEL-STACK {
     description
       "mpls label stack information for FIB table
@@ -1906,11 +1898,6 @@ submodule Cisco-IOS-XR-fib-common-oper-sub4 {
       container mpls-information-for-path {
         description "mpls info for this path entry";
         uses FIB-SH-TBL-PATH-MPLS-INFO;
-      }
-
-      container srv6-information-for-path {
-        description "SRv6 info for this path entry";
-        uses FIB-SH-TBL-PATH-SRV6-INFO;
       }
       leaf hardware-information {
         type yang:hex-string;
@@ -2530,18 +2517,6 @@ submodule Cisco-IOS-XR-fib-common-oper-sub4 {
     leaf route-is-sr-flag {
       type boolean;
       description "Route is a MPLS Segment-Routing prefix";
-    }
-    leaf route-is-srv6-transit {
-      type boolean;
-      description "This route is SRv6 Transit function";
-    }
-    leaf route-is-srv6-end {
-      type boolean;
-      description "This route is SRv6 End function";
-    }
-    leaf srv6-operation-type {
-      type string;
-      description "SRv6 Operation Type";
     }
 
     list extension-object {
@@ -3201,14 +3176,6 @@ submodule Cisco-IOS-XR-fib-common-oper-sub4 {
       description
         "Number of lisp rloc objects associated with
         table";
-    }
-    leaf number-routes-srv6-transit {
-      type uint32;
-      description "Number of SRv6 transit routes";
-    }
-    leaf number-routes-srv6-end {
-      type uint32;
-      description "Number of SRv6 end routes";
     }
     leaf number-of-sr-labels {
       type uint32;

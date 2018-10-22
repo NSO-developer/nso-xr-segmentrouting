@@ -24,6 +24,11 @@ module Cisco-IOS-XR-types {
      Copyright (c) 2013-2018 by Cisco Systems, Inc.
      All rights reserved.";
 
+  revision "2018-06-29" {
+    description
+     "Modified string match pattern of Interface-name";
+  }
+
   revision "2017-12-01" {
     description
      "Modified string match pattern of Tty-escape-char-num";
@@ -176,7 +181,7 @@ module Cisco-IOS-XR-types {
 
   typedef Interface-name {
     type string {
-      pattern '[a-zA-Z0-9./-]+';
+      pattern '[a-zA-Z0-9._/-]+';
     }
     description "An interface name specifying an interface type and 
                  instance.

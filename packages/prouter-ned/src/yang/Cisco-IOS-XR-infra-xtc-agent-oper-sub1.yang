@@ -157,6 +157,9 @@ submodule Cisco-IOS-XR-infra-xtc-agent-oper-sub1 {
       enum srlb-invalid-label {
         description "BSID not valid within SRLB range";
       }
+      enum internal-error {
+        description "Internal error";
+      }
     }
     description "Xtc bsid error";
   }
@@ -217,7 +220,7 @@ submodule Cisco-IOS-XR-infra-xtc-agent-oper-sub1 {
   grouping XTC-PFX-ENTRY {
     description "XTC prefix etnry";
 
-    container ip {
+    container ip-address {
       description "Prefix IP address";
       uses XTC-IP-ADDR-TYPE;
     }
@@ -680,6 +683,35 @@ submodule Cisco-IOS-XR-infra-xtc-agent-oper-sub1 {
       type uint32;
       description "Color";
     }
+    leaf maximum-sid-depth {
+      type uint32;
+      description "Maximum SID Depth";
+    }
+  }
+
+  grouping XTC-POLICY-SUMMARY-BAG {
+    description "Policy summary information";
+
+    container ipv4-source-address {
+      description "IPv4 address used for IPv4 policies";
+      uses XTC-IP-ADDR-TYPE;
+    }
+    leaf configured-total-policy-count {
+      type uint32;
+      description "Total number of configured policies";
+    }
+    leaf configured-up-policy-count {
+      type uint32;
+      description
+        "Total number of configured policies that are
+        operationally up";
+    }
+    leaf configured-down-policy-count {
+      type uint32;
+      description
+        "Total number of configured policies that are
+        operationally down";
+    }
   }
 
   grouping XTC-POLICY-AUTO-BAG {
@@ -695,6 +727,14 @@ submodule Cisco-IOS-XR-infra-xtc-agent-oper-sub1 {
     leaf preference {
       type uint32;
       description "Preference of the policy";
+    }
+  }
+
+  grouping XTC-SEGMENTS-BAG {
+    description "XTC SEGMENTS BAG";
+    leaf segment-algorithm {
+      type uint8;
+      description "Segment Algorithm";
     }
   }
 
@@ -759,6 +799,11 @@ submodule Cisco-IOS-XR-infra-xtc-agent-oper-sub1 {
       uses XTC-PATH-METRICS-BAG;
     }
 
+    container segments {
+      description "Segments constraints";
+      uses XTC-SEGMENTS-BAG;
+    }
+
     list affinity-constraint {
       description "Affinity constraints list";
       uses XTC-AFFINITY-CONSTRAINT;
@@ -785,6 +830,10 @@ submodule Cisco-IOS-XR-infra-xtc-agent-oper-sub1 {
     leaf sid-type {
       type Xtc-sr-sid;
       description "SID type";
+    }
+    leaf algorithm {
+      type uint8;
+      description "Algorithim";
     }
   }
 

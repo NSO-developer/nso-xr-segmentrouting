@@ -2128,10 +2128,6 @@ submodule Cisco-IOS-XR-clns-isis-oper-sub1 {
       type boolean;
       description "Flex-Algo Disabled";
     }
-    leaf definition-source {
-      type Isis-ipv4-address;
-      description "Flex-Algo Definition Source";
-    }
     leaf definition-prioroty {
       type uint32;
       description "Flex-Algo Definition Priority";

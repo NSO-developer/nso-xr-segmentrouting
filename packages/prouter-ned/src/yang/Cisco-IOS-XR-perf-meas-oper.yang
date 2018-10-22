@@ -70,20 +70,6 @@ module Cisco-IOS-XR-perf-meas-oper {
         key "node";
         description "Node-specific data for a particular node";
 
-        container sessions {
-          description "Table of sessions";
-
-          list session {
-            key "session-id";
-            description "Session information";
-            leaf session-id {
-              type uint32;
-              description "Session ID";
-            }
-            uses PM-SESSION-BAG;
-          }
-        }
-
         container summary {
           description "Summary";
           uses PM-SUMMARY-BAG;
@@ -106,7 +92,7 @@ module Cisco-IOS-XR-perf-meas-oper {
             }
           }
 
-          container delay {
+          container interface-delay {
             description "Delay-measurement intformation";
 
             container interface-last-aggregations {

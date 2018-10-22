@@ -99,11 +99,14 @@ module Cisco-IOS-XR-ip-bfd-oper {
         description "Table of IPv6 single hop Packet counters";
 
         list ipv6-single-hop-packet-counter {
-          key "interface-name";
           description "Interface IPv6 single hop Packet counters";
           leaf interface-name {
             type xr:Interface-name;
             description "Interface Name";
+          }
+          leaf location {
+            type xr:Node-id;
+            description "Location";
           }
           uses BFD-MGMT-PACKET-COUNT;
         }
@@ -111,17 +114,20 @@ module Cisco-IOS-XR-ip-bfd-oper {
     }
 
     container counters {
-      description "Counters";
+      description "IPv4 Counters";
 
       container packet-counters {
-        description "Table of Packet counters";
+        description "Table of IPv4 Packet counters";
 
         list packet-counter {
-          key "interface-name";
-          description "Interface Packet counters";
+          description "Interface IPv4 Packet counters";
           leaf interface-name {
             type xr:Interface-name;
             description "Interface Name";
+          }
+          leaf location {
+            type xr:Node-id;
+            description "Location";
           }
           uses BFD-MGMT-PACKET-COUNT;
         }
@@ -569,11 +575,14 @@ module Cisco-IOS-XR-ip-bfd-oper {
         description "Table of IPv4 single hop Packet counters";
 
         list ipv4-single-hop-packet-counter {
-          key "interface-name";
           description "Interface IPv4 single hop Packet counters";
           leaf interface-name {
             type xr:Interface-name;
             description "Interface Name";
+          }
+          leaf location {
+            type xr:Node-id;
+            description "Location";
           }
           uses BFD-MGMT-PACKET-COUNT;
         }

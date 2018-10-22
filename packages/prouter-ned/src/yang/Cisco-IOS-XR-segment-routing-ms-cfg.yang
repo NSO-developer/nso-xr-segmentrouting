@@ -125,7 +125,7 @@ module Cisco-IOS-XR-segment-routing-ms-cfg {
         key "af ip mask";
         description "IP prefix to SID mapping";
         leaf af {
-          type xr:Cisco-ios-xr-string;
+          type Srms-address-family;
           description "Address Family";
         }
         leaf ip {

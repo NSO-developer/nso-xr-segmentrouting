@@ -71,7 +71,7 @@ module Cisco-IOS-XR-clns-isis-datatypes {
   }
   typedef Isis-instance-name {
     type xr:Cisco-ios-xr-string {
-      length "1..40";
+      length "1..36";
     }
     description "Isis instance name";
   }

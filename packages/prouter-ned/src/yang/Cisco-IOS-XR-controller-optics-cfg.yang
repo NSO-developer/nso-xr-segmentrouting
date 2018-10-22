@@ -134,59 +134,6 @@ module Cisco-IOS-XR-controller-optics-cfg {
     }
     description "Optics ots safety control mode";
   }
-  typedef Optics-modulation {
-    type enumeration {
-      enum none {
-        value 0;
-        description "No Modulation Type";
-      }
-      enum bpsk {
-        value 1;
-        description "ModType BPSK";
-      }
-      enum qpsk {
-        value 2;
-        description "ModType QPSK";
-      }
-      enum 8qam {
-        value 3;
-        description "ModType 8QAM";
-      }
-      enum 16qam {
-        value 4;
-        description "ModType 16QAM";
-      }
-      enum 32qam {
-        value 5;
-        description "ModType 32QAM";
-      }
-      enum 64qam {
-        value 6;
-        description "ModType 64QAM";
-      }
-      enum bpsk-qspk {
-        value 7;
-        description "ModType BPSK_QPSK";
-      }
-      enum qpsk-8qam {
-        value 8;
-        description "ModType QPSK_8QAM";
-      }
-      enum 8qam-16qam {
-        value 9;
-        description "ModType 8QAM_16QAM";
-      }
-      enum 16qam-32qam {
-        value 10;
-        description "ModType 16QAM_32QAM";
-      }
-      enum 32qam-64qam {
-        value 11;
-        description "ModType 32QAM_64QAM";
-      }
-    }
-    description "Optics modulation";
-  }
   typedef Optics-ots-ampli-gain-range {
     type enumeration {
       enum normal {
@@ -501,12 +448,6 @@ module Cisco-IOS-XR-controller-optics-cfg {
         description
           "Select max chromatic dispersion (in units of
           ps/nm)";
-      }
-      leaf optics-modulation {
-        type Optics-modulation;
-        description
-          "BPSK,QPSK,8QAM,16QAM,32QAM,64QAM,BPSK-QPSK
-          ,QPSK-8QAM,8QAM-16QAM,16QAM-32QAM,32QAM-64QAM";
       }
       leaf optics-bits-per-symbol {
         type string {

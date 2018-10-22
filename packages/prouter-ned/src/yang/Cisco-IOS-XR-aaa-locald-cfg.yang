@@ -39,6 +39,11 @@ module Cisco-IOS-XR-aaa-locald-cfg {
      Copyright (c) 2013-2018 by Cisco Systems, Inc.
      All rights reserved.";
 
+  revision "2018-06-04" {
+    description
+      "Added Yang support for aaa password-policy.";
+  }
+
   revision "2017-09-07" {
     description
       "Fixed type translation error.";
@@ -93,23 +98,6 @@ module Cisco-IOS-XR-aaa-locald-cfg {
       range "0..11";
     }
     description "Aaa pass policy months";
-  }
-  typedef Aaa-password {
-    type enumeration {
-      enum type5 {
-        value 5;
-        description "Type 5 password";
-      }
-      enum type8 {
-        value 8;
-        description "Type 8 password";
-      }
-      enum type9 {
-        value 9;
-        description "Type 9 password";
-      }
-    }
-    description "Aaa password";
   }
   typedef Aaa-pass-policy-lockout-days {
     type uint32 {
@@ -305,7 +293,7 @@ module Cisco-IOS-XR-aaa-locald-cfg {
       description "Configure local usernames";
 
       list username {
-        key "name";
+        key "ordering-index name";
         description "Local username";
 
         container password-policy {
@@ -319,35 +307,6 @@ module Cisco-IOS-XR-aaa-locald-cfg {
           leaf password {
             type xr:Proprietary-password;
             description "The user's password";
-          }
-        }
-
-        container secret {
-          description "Specify the secret for the user";
-          leaf type {
-            type Aaa-password;
-            description "Password type";
-          }
-          leaf secret5 {
-            when "../type = 'type5'" {
-              description "../Type = Type5";
-            }
-            type xr:Md5-password;
-            description "The user's secret password";
-          }
-          leaf secret8 {
-            when "../type = 'type8'" {
-              description "../Type = Type8";
-            }
-            type xr:Type8-password;
-            description "Type 8 password";
-          }
-          leaf secret9 {
-            when "../type = 'type9'" {
-              description "../Type = Type9";
-            }
-            type xr:Type9-password;
-            description "Type 9 password";
           }
         }
 
@@ -365,9 +324,19 @@ module Cisco-IOS-XR-aaa-locald-cfg {
             }
           }
         }
+        leaf secret {
+          type xr:Md5-password;
+          description "Specify the secret for the user";
+        }
         leaf password {
           type xr:Proprietary-password;
           description "Specify the password for the user";
+        }
+        leaf ordering-index {
+          type uint32;
+          description
+            "This is used to sort the users in the order of
+            precedence";
         }
         leaf name {
           type string;

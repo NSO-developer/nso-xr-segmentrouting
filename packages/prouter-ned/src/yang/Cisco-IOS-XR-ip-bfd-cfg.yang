@@ -266,7 +266,7 @@ module Cisco-IOS-XR-ip-bfd-cfg {
         key "location";
         description "Location configuration";
         leaf location {
-          type string;
+          type xr:Node-id;
           description "Location";
         }
       }

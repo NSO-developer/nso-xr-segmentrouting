@@ -47,6 +47,11 @@ module Cisco-IOS-XR-clns-isis-cfg {
      Copyright (c) 2013-2018 by Cisco Systems, Inc.
      All rights reserved.";
 
+  revision "2018-06-14" {
+    description
+      "Added FRR InitialDelay under address-family fast-reroute submode.";
+  }
+
   revision "2018-04-20" {
     description
       "Added metric-type under flex-algo submode.";
@@ -1302,25 +1307,45 @@ module Cisco-IOS-XR-clns-isis-cfg {
                   description "FRR prefix-limit configuration";
 
                   list priority-limit {
-                    key "level frr-type";
+                    must "priority-limit-data or frr-type" {
+                      description
+                        "priority-limit-data or frr-type must be
+                        present.";
+                    }
+                    key "level";
                     description
                       "Limit backup computation upto the prefix
                       priority";
+
+                    grouping PRIORITY-LIMIT-CONTENT {
+                      description "Content grouping.";
+                      leaf priority {
+                        type Isis-prefix-priority;
+                        mandatory true;
+                        description
+                          "Compute for all prefixes upto the
+                          specified priority";
+                      }
+                    }
+
+                    container priority-limit-data {
+                      description "Data container.";
+                      uses PRIORITY-LIMIT-CONTENT;
+                    }
                     leaf level {
                       type dt1:Isis-internal-level;
                       description
                         "Level to which configuration applies";
                     }
-                    leaf frr-type {
-                      type Isisfrr;
-                      description "Computation Type";
-                    }
-                    leaf priority {
-                      type Isis-prefix-priority;
-                      mandatory true;
-                      description
-                        "Compute for all prefixes upto the
-                        specified priority";
+
+                    list frr-type {
+                      key "frr-type";
+                      description "keys: frr-type";
+                      leaf frr-type {
+                        type Isisfrr;
+                        description "Computation Type";
+                      }
+                      uses PRIORITY-LIMIT-CONTENT;
                     }
                   }
                 }
@@ -1398,6 +1423,14 @@ module Cisco-IOS-XR-clns-isis-cfg {
                       description "Computation Type";
                     }
                   }
+                }
+                leaf frr-initial-delay {
+                  type uint32 {
+                    range "100..60000";
+                  }
+                  units "millisecond";
+                  description
+                    "Delay before running FRR (milliseconds)";
                 }
               }
 

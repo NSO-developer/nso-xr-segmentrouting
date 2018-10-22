@@ -179,13 +179,13 @@ module Cisco-IOS-XR-ip-ntp-cfg {
         }
         leaf min-poll {
           type uint32 {
-            range "3..17";
+            range "4..17";
           }
           description "Minimum poll interval";
         }
         leaf max-poll {
           type uint32 {
-            range "3..17";
+            range "4..17";
           }
           description "Maxinum poll interval";
         }
@@ -242,13 +242,13 @@ module Cisco-IOS-XR-ip-ntp-cfg {
               }
               leaf min-poll {
                 type uint32 {
-                  range "3..17";
+                  range "4..17";
                 }
                 description "Minimum poll interval";
               }
               leaf max-poll {
                 type uint32 {
-                  range "3..17";
+                  range "4..17";
                 }
                 description "Maxinum poll interval";
               }
@@ -300,13 +300,13 @@ module Cisco-IOS-XR-ip-ntp-cfg {
               }
               leaf min-poll {
                 type uint32 {
-                  range "3..17";
+                  range "4..17";
                 }
                 description "Minimum poll interval";
               }
               leaf max-poll {
                 type uint32 {
-                  range "3..17";
+                  range "4..17";
                 }
                 description "Maxinum poll interval";
               }

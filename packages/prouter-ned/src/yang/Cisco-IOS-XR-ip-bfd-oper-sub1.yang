@@ -135,7 +135,7 @@ submodule Cisco-IOS-XR-ip-bfd-oper-sub1 {
         description "IPv4 AFI";
       }
       enum bfd-af-id-ipv6 {
-        value 26;
+        value 10;
         description "IPv6 AFI";
       }
     }

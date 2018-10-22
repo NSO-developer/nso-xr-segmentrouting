@@ -48,443 +48,430 @@ submodule Cisco-IOS-XR-mpls-te-oper-sub1 {
   typedef Mpls-tp-tunnel-switchover-trig {
     type enumeration {
       enum none {
-        description "No Trigger";
+        description "Deprecated";
       }
       enum bfd {
-        description "Trigger is BFD";
+        description "Deprecated";
       }
       enum local-lockout {
-        description "Trigger is local lockout";
+        description "Deprecated";
       }
       enum remote-lockout {
-        description "Trigger is remote lockout";
+        description "Deprecated";
       }
       enum ais {
-        description "Trigger is AIS";
+        description "Deprecated";
       }
       enum ldi {
-        description "Trigger is LDI";
+        description "Deprecated";
       }
       enum lkr {
-        description "Trigger is LKR";
+        description "Deprecated";
       }
       enum link-down {
-        description "Trigger is due to link down event";
+        description "Deprecated";
       }
     }
-    description "Transport profile protection switchover triggers";
+    description "Deprecated";
   }
   typedef Mpls-tp-tunnel-active-lsp {
     type enumeration {
       enum working {
-        description "Working LSP";
+        description "Deprecated";
       }
       enum protect {
-        description "Protect LSP";
+        description "Deprecated";
       }
       enum none {
-        description "Neither working nor protection LSP is active";
+        description "Deprecated";
       }
     }
-    description "Transport profile tunnel active LSP";
+    description "Deprecated";
   }
   typedef Mpls-tp-lsp-bfd-state {
     type enumeration {
       enum down {
-        description "BFD down";
+        description "Deprecated";
       }
       enum up {
-        description "BFD up";
+        description "Deprecated";
       }
     }
-    description "Transport profile LSP BFD states";
+    description "Deprecated";
   }
   typedef Mpls-tp-lsp-oam-state {
     type enumeration {
       enum none {
-        description "No fault";
+        description "Deprecated";
       }
       enum ldi {
-        description "LDI";
+        description "Deprecated";
       }
       enum lkr {
-        description "LKR";
+        description "Deprecated";
       }
       enum ais {
-        description "AIS";
+        description "Deprecated";
       }
     }
-    description "Transport profile LSP OAM states";
+    description "Deprecated";
   }
   typedef Mpls-tp-lsp-state {
     type enumeration {
       enum down {
-        description "Down";
+        description "Deprecated";
       }
       enum up {
-        description "Up";
+        description "Deprecated";
       }
       enum active {
-        description "Up (active)";
+        description "Deprecated";
       }
       enum unknown {
-        description "Unknown";
+        description "Deprecated";
       }
     }
-    description "Transport profile LSP states";
+    description "Deprecated";
   }
   typedef Mpls-tp-tunnel-state {
     type enumeration {
       enum admin-down {
-        description "Tunnel is administratively down";
+        description "Deprecated";
       }
       enum admin-up {
-        description "Tunnel is administratively up";
+        description "Deprecated";
       }
       enum oper-up {
-        description "Tunnel is operationally up";
+        description "Deprecated";
       }
       enum oper-down {
-        description "Tunnel is operationally down";
+        description "Deprecated";
       }
     }
-    description "Transport profile tunnel states";
+    description "Deprecated";
   }
 
   grouping MPLS-TE-TP-GLOBAL-INFO {
-    description "Transport profile global information";
+    description "Deprecated";
 
     container oam-protection-triggers {
-      description "OAM Protection Triggers";
+      description "Deprecated";
       uses MPLS-TE-TP-OAM-PROT-TRIGGER;
     }
     leaf node-id {
       type inet:ipv4-address;
-      description "Node ID";
+      description "Deprecated";
     }
     leaf global-id {
       type uint32;
-      description "Global ID";
+      description "Deprecated";
     }
     leaf oam-refresh {
       type uint32;
-      units "second";
-      description "OAM refresh interval in seconds";
+      description "Deprecated";
     }
     leaf bfd-interval {
       type uint32;
-      description "BFD interval";
+      description "Deprecated";
     }
     leaf bfd-interval-in-micro-sec {
       type boolean;
-      description "Is global BFD interval in micro sec";
+      description "Deprecated";
     }
     leaf bfd-interval-standby {
       type uint32;
-      description "BFD interval for standby LSPs";
+      description "Deprecated";
     }
     leaf bfd-interval-standby-in-micro-sec {
       type boolean;
-      description
-        "Is global BFD interval for standby LSPs in micro
-        sec";
+      description "Deprecated";
     }
     leaf bfd-multiplier {
       type uint32;
-      description "BFD multiplier";
+      description "Deprecated";
     }
     leaf bfd-multiplier-standby {
       type uint32;
-      description "BFD multiplier for standby LSPs";
+      description "Deprecated";
     }
     leaf wait-to-restore-interval {
       type uint32;
-      units "second";
-      description
-        "Wait to restore interval for working LSP in
-        seconds";
+      description "Deprecated";
     }
     leaf alarm-suppression {
       type boolean;
-      description "Tunnel/LSP alarm suppression";
+      description "Deprecated";
     }
     leaf soak-time {
       type uint32;
-      units "second";
-      description "Tunnel/LSP alarm soak time in seconds";
+      description "Deprecated";
     }
   }
 
   grouping MPLS-TE-TP-OAM-PROT-TRIGGER {
-    description "Transport profile tunnel OAM protection triggers";
+    description "Deprecated";
     leaf ais {
       type boolean;
-      description "Trigger due to AIS";
+      description "Deprecated";
     }
     leaf ldi {
       type boolean;
-      description "Trigger due to LDI";
+      description "Deprecated";
     }
     leaf lkr {
       type boolean;
-      description "Trigger due to LKR";
+      description "Deprecated";
     }
   }
 
   grouping MPLS-TE-TP-DETAIL-TUNNEL-LSP-INFO {
-    description
-      "Transport profile LSP end-point detail
-      information";
+    description "Deprecated";
 
     container brief-information {
-      description "Brief LSP information";
+      description "Deprecated";
       uses MPLS-TE-TP-TUNNEL-LSP-INFO;
     }
     leaf oam-refresh-interval {
       type uint32;
-      description "OAM refresh interval";
+      description "Deprecated";
     }
     leaf tp-out-label {
       type uint32;
-      description "Outgoing label";
+      description "Deprecated";
     }
     leaf link-id {
       type uint32;
-      description "Transport Profile Link Identifier";
+      description "Deprecated";
     }
     leaf out-interface-name {
       type string;
-      description "Outgoing interface name";
+      description "Deprecated";
     }
     leaf out-next-hop {
       type inet:ipv4-address;
-      description "Outgoing next hop in IPv4 address format";
+      description "Deprecated";
     }
     leaf in-label {
       type uint32;
-      description "Incoming label";
+      description "Deprecated";
     }
     leaf reserved-bandwidth {
       type uint32;
-      units "kbit/s";
-      description "Reserved Bandwidth in Kbps";
+      description "Deprecated";
     }
   }
 
   grouping MPLS-TE-TP-TUNNEL-LSP-INFO {
-    description "Transport profile LSP end-point information";
+    description "Deprecated";
     leaf lsp-id {
       type uint32;
-      description "LSP identifier";
+      description "Deprecated";
     }
     leaf state {
       type Mpls-tp-lsp-state;
-      description "LSP state";
+      description "Deprecated";
     }
     leaf lock-out {
       type boolean;
-      description "Lock out";
+      description "Deprecated";
     }
     leaf rx-oam-state {
       type Mpls-tp-lsp-oam-state;
-      description "Received fault OAM state";
+      description "Deprecated";
     }
     leaf tx-oam-state {
       type Mpls-tp-lsp-oam-state;
-      description "Transmitted fault OAM state";
+      description "Deprecated";
     }
     leaf bfd-state {
       type Mpls-tp-lsp-bfd-state;
-      description "BFD state";
+      description "Deprecated";
     }
   }
 
   grouping MPLS-TE-TP-TUNNEL-INFO {
-    description "Transport profile tunnel Information";
+    description "Deprecated";
 
     container working-lsp {
-      description "Working LSP information";
+      description "Deprecated";
       uses MPLS-TE-TP-TUNNEL-LSP-INFO;
     }
 
     container protect-lsp {
-      description "Protect LSP information";
+      description "Deprecated";
       uses MPLS-TE-TP-TUNNEL-LSP-INFO;
     }
     leaf tunnel-name {
       type string;
-      description "Transport profile tunnel name";
+      description "Deprecated";
     }
     leaf source-tunnel-id {
       type uint32;
-      description "Source tunnel identifier";
+      description "Deprecated";
     }
     leaf source-node-id {
       type inet:ipv4-address;
-      description "Source node ID";
+      description "Deprecated";
     }
     leaf source-global-id {
       type uint32;
-      description "Source global ID";
+      description "Deprecated";
     }
     leaf destination-node-id {
       type inet:ipv4-address;
-      description "Destination node ID";
+      description "Deprecated";
     }
     leaf destination-global-id {
       type uint32;
-      description "Destination global ID";
+      description "Deprecated";
     }
     leaf remote-tunnel-id {
       type uint32;
-      description "Remote tunnel identifier";
+      description "Deprecated";
     }
     leaf admin-status {
       type Mpls-tp-tunnel-state;
-      description "Tunnel admin status";
+      description "Deprecated";
     }
     leaf operation-status {
       type Mpls-tp-tunnel-state;
-      description "Tunnel operational status";
+      description "Deprecated";
     }
     leaf active-lsp {
       type Mpls-tp-tunnel-active-lsp;
-      description "Active LSP";
+      description "Deprecated";
     }
   }
 
   grouping MPLS-TE-TP-DETAIL-TUNNEL-INFO {
-    description "Transport profile detail tunnel information";
+    description "Deprecated";
 
     container tunnel {
-      description "Brief tunnel information";
+      description "Deprecated";
       uses MPLS-TE-TP-TUNNEL-INFO;
     }
 
     container working-lsp {
-      description "Working LSP information";
+      description "Deprecated";
       uses MPLS-TE-TP-DETAIL-TUNNEL-LSP-INFO;
     }
 
     container protect-lsp {
-      description "Protect LSP information";
+      description "Deprecated";
       uses MPLS-TE-TP-DETAIL-TUNNEL-LSP-INFO;
     }
 
     container oam-protection-triggers {
-      description "OAM Protection Triggers";
+      description "Deprecated";
       uses MPLS-TE-TP-OAM-PROT-TRIGGER;
     }
     leaf req-bandwidth {
       type uint32;
-      units "kbit/s";
-      description "Requested tunnel bandwidth in Kbps";
+      description "Deprecated";
     }
     leaf oam-interval {
       type uint32;
-      description "OAM Interval";
+      description "Deprecated";
     }
     leaf bfd-interval-active {
       type uint32;
-      description "BFD interval for active LSP";
+      description "Deprecated";
     }
     leaf bfd-interval-active-in-micro-sec {
       type boolean;
-      description "Is BFD interval for active LSP in micro sec";
+      description "Deprecated";
     }
     leaf bfd-multiplier-active {
       type uint32;
-      description "BFD multiplier for active LSP";
+      description "Deprecated";
     }
     leaf bfd-interval-standby {
       type uint32;
-      description "BFD interval for standby LSP";
+      description "Deprecated";
     }
     leaf bfd-interval-standby-in-micro-sec {
       type boolean;
-      description "Is BFD interval for standby LSP in micro sec";
+      description "Deprecated";
     }
     leaf bfd-multiplier-standby {
       type uint32;
-      description "BFD multiplier for standby LSP";
+      description "Deprecated";
     }
     leaf tunnel-up-time {
       type uint32;
-      units "second";
-      description "Time in seconds since tunnel went up";
+      description "Deprecated";
     }
     leaf switchover-trig {
       type Mpls-tp-tunnel-switchover-trig;
-      description "Switchover trigger";
+      description "Deprecated";
     }
     leaf switch-over-time {
       type uint32;
-      description "The time at which last switchover was triggered";
+      description "Deprecated";
     }
   }
 
   grouping MPLS-TE-TP-TUNNEL-SUMMARY {
-    description "Transport profile tunnel summary";
+    description "Deprecated";
     leaf up-working-ls-ps {
       type uint32;
-      description "Number of working LSPs that are in up state";
+      description "Deprecated";
     }
     leaf active-working-ls-ps {
       type uint32;
-      description "Number of working LSPs that are active";
+      description "Deprecated";
     }
     leaf down-working-ls-ps {
       type uint32;
-      description "Number of Working LSPs that are in down state";
+      description "Deprecated";
     }
     leaf locked-working-ls-ps {
       type uint32;
-      description "Number of working LSPs that are locked out";
+      description "Deprecated";
     }
     leaf up-protect-ls-ps {
       type uint32;
-      description "Number of protect LSPs that are in up state";
+      description "Deprecated";
     }
     leaf active-protect-ls-ps {
       type uint32;
-      description "Number of protect LSPs that are active";
+      description "Deprecated";
     }
     leaf down-protect-ls-ps {
       type uint32;
-      description "Number of protect LSPs that are in down state";
+      description "Deprecated";
     }
     leaf locked-protect-ls-ps {
       type uint32;
-      description "Number of protect LSPs that are locked out";
+      description "Deprecated";
     }
     leaf up-tunnels {
       type uint32;
-      description "Number of tunnels that are in up state";
+      description "Deprecated";
     }
     leaf down-tunnels {
       type uint32;
-      description "Number of tunnels that are in down state";
+      description "Deprecated";
     }
     leaf admin-down-tunnels {
       type uint32;
-      description
-        "Number of tunnels that are administratively down";
+      description "Deprecated";
     }
     leaf complete-fec-working-ls-ps {
       type uint32;
-      description "Number of working LSPs with complete FEC";
+      description "Deprecated";
     }
     leaf complete-fec-protect-ls-ps {
       type uint32;
-      description "Number of protect LSPs with complete FEC";
+      description "Deprecated";
     }
     leaf bfd-session-working-ls-ps {
       type uint32;
-      description "Number of working LSPs with BFD session";
+      description "Deprecated";
     }
     leaf bfd-session-protect-ls-ps {
       type uint32;
-      description "Number of protect LSPs with BFD session";
+      description "Deprecated";
     }
   }
 }

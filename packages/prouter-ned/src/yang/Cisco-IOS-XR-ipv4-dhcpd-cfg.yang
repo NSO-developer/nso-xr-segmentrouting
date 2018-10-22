@@ -122,6 +122,19 @@ module Cisco-IOS-XR-ipv4-dhcpd-cfg {
     }
     description "Dhcpv4 limit lease1";
   }
+  typedef Ipv4dhcpd-relay-giaddr-policy {
+    type enumeration {
+      enum replace {
+        value 1;
+        description "Replace";
+      }
+      enum drop {
+        value 2;
+        description "Drop";
+      }
+    }
+    description "Ipv4dhcpd relay giaddr policy";
+  }
   typedef Matchoption {
     type enumeration {
       enum circuitid {
@@ -404,6 +417,14 @@ module Cisco-IOS-XR-ipv4-dhcpd-cfg {
       enum l2-interface {
         value 8;
         description "L2 Interface";
+      }
+      enum l3-interface {
+        value 9;
+        description "L3 Interface";
+      }
+      enum host-name {
+        value 10;
+        description "Hostname";
       }
     }
     description "Ipv4dhcpd fmt specifier";
@@ -926,7 +947,7 @@ module Cisco-IOS-XR-ipv4-dhcpd-cfg {
                     }
                     leaf minutes {
                       type uint32 {
-                        range "1..59";
+                        range "0..59";
                       }
                       units "minute";
                       description "Minutes";
@@ -1043,7 +1064,7 @@ module Cisco-IOS-XR-ipv4-dhcpd-cfg {
                 }
                 leaf minutes {
                   type uint32 {
-                    range "1..59";
+                    range "0..59";
                   }
                   units "minute";
                   description "Minutes";
@@ -1097,10 +1118,9 @@ module Cisco-IOS-XR-ipv4-dhcpd-cfg {
                       type uint32;
                       description "Set constant integer";
                     }
-                    leaf option-number {
-                      type uint32 {
-                        range "1..255";
-                      }
+                    leaf-list option-number {
+                      type uint32;
+                      max-elements "12";
                       description "Option number";
                     }
                   }
@@ -1164,7 +1184,7 @@ module Cisco-IOS-XR-ipv4-dhcpd-cfg {
                   " configured.";
                 description "GIADDR policy";
                 leaf policy {
-                  type Ipv4dhcpd-giaddr-policy;
+                  type Ipv4dhcpd-relay-giaddr-policy;
                   mandatory true;
                   description "GIADDR policy";
                 }

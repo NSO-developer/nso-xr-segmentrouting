@@ -252,7 +252,7 @@ module Cisco-IOS-XR-ipv6-new-dhcpv6d-cfg {
             type empty;
             description "Enable route addition for IANA";
           }
-          leaf route-add-disable {
+          leaf relay-route-add-disable {
             type empty;
             description "RouteDisable";
           }
@@ -587,7 +587,7 @@ module Cisco-IOS-XR-ipv6-new-dhcpv6d-cfg {
                 }
                 leaf minutes {
                   type uint32 {
-                    range "1..59";
+                    range "0..59";
                   }
                   units "minute";
                   description "Minutes";
@@ -644,7 +644,7 @@ module Cisco-IOS-XR-ipv6-new-dhcpv6d-cfg {
             }
             leaf minutes {
               type uint32 {
-                range "1..59";
+                range "0..59";
               }
               units "minute";
               description "Minutes";

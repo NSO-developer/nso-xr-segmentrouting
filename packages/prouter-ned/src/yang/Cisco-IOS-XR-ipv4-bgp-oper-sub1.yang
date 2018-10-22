@@ -1603,22 +1603,6 @@ submodule Cisco-IOS-XR-ipv4-bgp-oper-sub1 {
       type uint32;
       description "Number of IPv6 ROA Paths";
     }
-    leaf rpki-disabled {
-      type boolean;
-      description "RPKI Knob disabled";
-    }
-    leaf rpki-use-validity {
-      type boolean;
-      description "Use RPKI validity for bestpath calculation";
-    }
-    leaf rpki-allow-invalid {
-      type boolean;
-      description "Allow invalid paths";
-    }
-    leaf rpki-signal-ibgp {
-      type boolean;
-      description "Signal RPKI validity to iBGP peers";
-    }
   }
 
   grouping BGP-UPDERR-PROC-BAG {
@@ -5052,6 +5036,18 @@ submodule Cisco-IOS-XR-ipv4-bgp-oper-sub1 {
       type uint32;
       units "second";
       description "RIB purge timeout time (in seconds)";
+    }
+    leaf rpki-use-validity {
+      type boolean;
+      description "Use RPKI validity for bestpath calculation";
+    }
+    leaf rpki-allow-invalid {
+      type boolean;
+      description "Allow invalid paths";
+    }
+    leaf rpki-signal-ibgp {
+      type boolean;
+      description "Signal RPKI validity to iBGP peers";
     }
   }
 
@@ -11236,6 +11232,10 @@ submodule Cisco-IOS-XR-ipv4-bgp-oper-sub1 {
       type boolean;
       description "Entry is a neighbor (not an update group)";
     }
+    leaf update-group-afi {
+      type uint8;
+      description "AFI of the Update group it is advertised to";
+    }
     leaf update-group-number {
       type uint32;
       description "Update group index";
@@ -11796,6 +11796,14 @@ submodule Cisco-IOS-XR-ipv4-bgp-oper-sub1 {
       type xr:Route-dist;
       description "Original Source Route Distinguisher";
     }
+    leaf mac-ip-present {
+      type boolean;
+      description "Mac IP Present  present";
+    }
+    leaf mac-ip {
+      type yang:mac-address;
+      description "Mac associated with IP";
+    }
     list rcvd-label {
       description "Path received label stack";
         leaf entry {
@@ -11897,38 +11905,6 @@ submodule Cisco-IOS-XR-ipv4-bgp-oper-sub1 {
     }
   }
 
-  grouping BGP-UPDERR-VRF-BAG {
-    description "BGP Update error-handling VRF information";
-
-    container last-update-malformed-timestamp {
-      description
-        "Last malformed messages received time: time
-        elapsed since 00:00:00 UTC, January 1, 1970";
-      uses BGP-TIMESPEC;
-    }
-    leaf update-vrf-name {
-      type string;
-      description "VRF Name";
-    }
-    leaf update-malformed-message-count {
-      type uint32;
-      description "Malformed messages count";
-    }
-    leaf update-malformed-neighbor-count {
-      type uint32;
-      description
-        "Count of neighbors that received malformed
-        messages";
-    }
-    leaf last-update-malformed-age {
-      type uint32;
-      units "second";
-      description
-        "Time since last malformed messages received
-        event (in seconds)";
-    }
-  }
-
   grouping BGP-EDM-RPKI-REFRESH-ENTRY {
     description "BGP EDM RPKI REFRESH ENTRY";
     leaf af-name {
@@ -11959,6 +11935,38 @@ submodule Cisco-IOS-XR-ipv4-bgp-oper-sub1 {
     list refresh-entry {
       description "Array of refresh entries";
       uses BGP-EDM-RPKI-REFRESH-ENTRY;
+    }
+  }
+
+  grouping BGP-UPDERR-VRF-BAG {
+    description "BGP Update error-handling VRF information";
+
+    container last-update-malformed-timestamp {
+      description
+        "Last malformed messages received time: time
+        elapsed since 00:00:00 UTC, January 1, 1970";
+      uses BGP-TIMESPEC;
+    }
+    leaf update-vrf-name {
+      type string;
+      description "VRF Name";
+    }
+    leaf update-malformed-message-count {
+      type uint32;
+      description "Malformed messages count";
+    }
+    leaf update-malformed-neighbor-count {
+      type uint32;
+      description
+        "Count of neighbors that received malformed
+        messages";
+    }
+    leaf last-update-malformed-age {
+      type uint32;
+      units "second";
+      description
+        "Time since last malformed messages received
+        event (in seconds)";
     }
   }
 

@@ -61,7 +61,7 @@ submodule Cisco-IOS-XR-ip-udp-oper-sub1 {
         description "IPv4";
       }
       enum ipv6 {
-        value 26;
+        value 10;
         description "IPv6";
       }
     }

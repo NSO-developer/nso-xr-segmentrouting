@@ -1111,6 +1111,38 @@ module Cisco-IOS-XR-mpls-ldp-cfg {
           container neighbor {
             description "Configuration related to Neighbors";
 
+            container dual-stack {
+              description
+                "Configuration related to neighbor transport";
+
+              container transport-connection {
+                description
+                  "Configuration related to neighbor transport";
+
+                container prefer {
+                  description
+                    "Configuration related to neighbor
+                    dual-stack xport-connection preference";
+                  leaf ipv4 {
+                    type empty;
+                    description
+                      "Configuration related to neighbor
+                      dual-stack xport-connection preference
+                      ipv4";
+                  }
+                }
+                leaf max-wait {
+                  type uint32 {
+                    range "0..60";
+                  }
+                  units "second";
+                  description
+                    "Configuration related to neighbor
+                    dual-stack xport-connection max-wait";
+                }
+              }
+            }
+
             container ldp-ids {
               description
                 "Configuration related to Neighbors using LDP

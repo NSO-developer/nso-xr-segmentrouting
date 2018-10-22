@@ -85,7 +85,7 @@ module Cisco-IOS-XR-subscriber-srg-cfg {
         description "IPv4";
       }
       enum ipv6 {
-        value 26;
+        value 10;
         description "IPv6";
       }
     }
@@ -93,6 +93,7 @@ module Cisco-IOS-XR-subscriber-srg-cfg {
   }
 
   container subscriber-redundancy {
+    presence "Indicates a subscriber-redundancy node is configured.";
     description "Subscriber Redundancy configuration";
 
     container groups {
@@ -103,6 +104,7 @@ module Cisco-IOS-XR-subscriber-srg-cfg {
         description "Redundancy Group configuration";
 
         container interface-list {
+          presence "Indicates a interface-list node is configured.";
           description "List of Interfaces for this Group";
 
           container interfaces {
@@ -164,6 +166,7 @@ module Cisco-IOS-XR-subscriber-srg-cfg {
           }
           leaf enable {
             type empty;
+            mandatory true;
             description
               "Enable List of Interfaces for this Group.
               Deletion of this object also causes deletion
@@ -323,6 +326,7 @@ module Cisco-IOS-XR-subscriber-srg-cfg {
         }
         leaf enable {
           type empty;
+          mandatory true;
           description
             "Enable Redundancy Group configuration.
             Deletion of this object also causes deletion
@@ -390,6 +394,7 @@ module Cisco-IOS-XR-subscriber-srg-cfg {
     }
     leaf enable {
       type empty;
+      mandatory true;
       description
         "Enable Subscriber Redundancy configuration.
         Deletion of this object also causes deletion of

@@ -37,6 +37,11 @@ module Cisco-IOS-XR-crypto-ssh-cfg {
      Copyright (c) 2013-2018 by Cisco Systems, Inc.
      All rights reserved.";
 
+  revision "2018-05-24" {
+    description
+      "Changes in enable cipher aes-cbc schema and added enable cipher 3des-cbc support";
+  }
+
   revision "2018-04-04" {
     description
       "Changes in ssh kexchange algorithms schema";
@@ -135,11 +140,16 @@ module Cisco-IOS-XR-crypto-ssh-cfg {
         description "clientenable";
 
         container client-cipher {
-          description "clientcipher";
-          leaf aescbc {
+          description "Enable AES-CBC and 3DES_CBC for ssh client";
+          leaf aes-cbc {
             type boolean;
             default "false";
-            description "Enable AES-CBC ciphers for client";
+            description "Enable AES-CBC ciphers";
+          }
+          leaf tripledes-cbc {
+            type boolean;
+            default "false";
+            description "Enable 3DES-CBC cipher";
           }
         }
       }
@@ -200,11 +210,16 @@ module Cisco-IOS-XR-crypto-ssh-cfg {
         description "enable";
 
         container cipher {
-          description "cipher";
-          leaf aescbc {
+          description "Enable AES-CBC and 3DES-CBC ciphers";
+          leaf aes-cbc {
             type boolean;
             default "false";
-            description "Enable AES-CBC ciphers";
+            description "Enable aes-cbc ciphers";
+          }
+          leaf tripledes-cbc {
+            type boolean;
+            default "false";
+            description "Enable 3des-cbc cipher";
           }
         }
       }

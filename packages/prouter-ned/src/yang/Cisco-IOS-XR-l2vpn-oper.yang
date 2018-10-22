@@ -227,6 +227,7 @@ module Cisco-IOS-XR-l2vpn-oper {
       description "XConnect MP2MP Table";
 
       list xconnect-mp2mp {
+        key "group-name mp2-mp-name";
         description "XConnect MP2MP information";
         leaf group-name {
           type xr:Cisco-ios-xr-string {
@@ -734,6 +735,7 @@ module Cisco-IOS-XR-l2vpn-oper {
       description "XConnect Table";
 
       list xconnect {
+        key "group-name xconnect-name";
         description "XConnect information";
         leaf group-name {
           type xr:Cisco-ios-xr-string {
@@ -768,6 +770,7 @@ module Cisco-IOS-XR-l2vpn-oper {
       description "Bridge Domain Information";
 
       list bridge-domain {
+        key "bridge-domain-group-name bridge-domain-name";
         description "Bridge Domain Information";
 
         container bridge-access-vfi-table {

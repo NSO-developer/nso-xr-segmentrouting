@@ -321,11 +321,11 @@ submodule Cisco-IOS-XR-l2rib-oper-sub1 {
       description "MAC route sequence Number";
     }
     leaf flags {
-      type uint32;
+      type xr:Hex-integer;
       description "MAC route flags";
     }
     leaf baseflags {
-      type uint32;
+      type xr:Hex-integer;
       description "BASE flags";
     }
     leaf soo {
@@ -598,8 +598,8 @@ submodule Cisco-IOS-XR-l2rib-oper-sub1 {
       description "L2RIB Address Family";
     }
     leaf ip-address {
-      type inet:ipv6-address;
-      description "IP Address (V6 Format)";
+      type string;
+      description "IP Address";
     }
     leaf label {
       type uint32;
@@ -730,7 +730,7 @@ submodule Cisco-IOS-XR-l2rib-oper-sub1 {
       description "MAC-IP route sequence Number";
     }
     leaf flags {
-      type uint32;
+      type xr:Hex-integer;
       description "MAC-IP route flags";
     }
     leaf soo {

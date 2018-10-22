@@ -497,7 +497,7 @@ submodule Cisco-IOS-XR-mpls-ldp-oper-sub1 {
         description "IPv4 AFI";
       }
       enum ldp-af-id-ipv6 {
-        value 26;
+        value 10;
         description "IPv6 AFI";
       }
     }

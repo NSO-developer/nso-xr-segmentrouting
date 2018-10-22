@@ -351,6 +351,7 @@ module Cisco-IOS-XR-ip-tcp-cfg {
           description "VRF table";
 
           list vrf {
+            must "ipv4 or ipv6";
             key "vrf-name";
             description "VRF specific data";
 

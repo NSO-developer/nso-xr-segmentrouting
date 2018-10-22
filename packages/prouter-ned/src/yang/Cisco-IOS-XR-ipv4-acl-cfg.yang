@@ -16,7 +16,7 @@ module Cisco-IOS-XR-ipv4-acl-cfg {
   import Cisco-IOS-XR-ipv4-acl-datatypes { prefix "dt1"; }
 
   include Cisco-IOS-XR-ipv4-ace-cfg {
-    revision-date 2018-04-03;
+    revision-date 2018-05-08;
   }
 
   /*** META INFORMATION ***/
@@ -44,6 +44,11 @@ module Cisco-IOS-XR-ipv4-acl-cfg {
 
      Copyright (c) 2013-2018 by Cisco Systems, Inc.
      All rights reserved.";
+
+  revision "2018-05-08" {
+    description
+      "6.5.1 revision. Remove the when statement for fragments.";
+  }
 
   revision "2018-04-03" {
     description

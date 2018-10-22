@@ -123,8 +123,8 @@ submodule Cisco-IOS-XR-ip-iarm-v6-oper-sub1 {
       description "IPV4 Address";
     }
     leaf ipv6-address {
-      when "../afi = '26'" {
-        description "../AFI = '26'";
+      when "../afi = '10'" {
+        description "../AFI = '10'";
       }
       type Ipv6-address;
       description "IPV6 Address";

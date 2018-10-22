@@ -262,7 +262,7 @@ submodule Cisco-IOS-XR-ip-tcp-oper-sub3 {
         description "IPv4";
       }
       enum ipv6 {
-        value 26;
+        value 10;
         description "IPv6";
       }
     }

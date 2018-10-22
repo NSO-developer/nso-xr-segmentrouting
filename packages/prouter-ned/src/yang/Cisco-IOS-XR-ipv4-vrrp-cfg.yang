@@ -45,6 +45,16 @@ module Cisco-IOS-XR-ipv4-vrrp-cfg {
      Copyright (c) 2013-2018 by Cisco Systems, Inc.
      All rights reserved.";
 
+  revision "2018-05-19" {
+    description
+      "Added new path for router configuration enable.";
+  }
+
+  revision "2018-05-15" {
+    description
+      "Modified timer leaf path, removed msec field.";
+  }
+
   revision "2017-11-05" {
     description
       "Corrected boolean values in when statements.";
@@ -147,14 +157,6 @@ module Cisco-IOS-XR-ipv4-vrrp-cfg {
 
                 container timer {
                   description "Set advertisement timer";
-                  leaf in-msec {
-                    type boolean;
-                    default "false";
-                    description
-                      "TRUE - Advertise time configured in
-                      milliseconds, FALSE - Advertise time
-                      configured in seconds";
-                  }
                   leaf advertisement-time-in-msec {
                     type uint32 {
                       range "100..40950";
@@ -171,8 +173,8 @@ module Cisco-IOS-XR-ipv4-vrrp-cfg {
                     description "Advertisement time in seconds";
                   }
                   leaf forced {
-                    type boolean;
-                    default "false";
+                    type empty;
+                    units "millisecond";
                     description
                       "TRUE - Force configured timer values to
                       be used, required when configured in
@@ -368,14 +370,6 @@ module Cisco-IOS-XR-ipv4-vrrp-cfg {
 
                 container timer {
                   description "Set advertisement timer";
-                  leaf in-msec {
-                    type boolean;
-                    default "false";
-                    description
-                      "TRUE - Advertise time configured in
-                      milliseconds, FALSE - Advertise time
-                      configured in seconds";
-                  }
                   leaf advertisement-time-in-msec {
                     type uint32 {
                       range "100..40950";
@@ -392,8 +386,8 @@ module Cisco-IOS-XR-ipv4-vrrp-cfg {
                     description "Advertisement time in seconds";
                   }
                   leaf forced {
-                    type boolean;
-                    default "false";
+                    type empty;
+                    units "millisecond";
                     description
                       "TRUE - Force configured timer values to
                       be used, required when configured in
@@ -567,14 +561,6 @@ module Cisco-IOS-XR-ipv4-vrrp-cfg {
 
                 container timer {
                   description "Set advertisement timer";
-                  leaf in-msec {
-                    type boolean;
-                    default "false";
-                    description
-                      "TRUE - Advertise time configured in
-                      milliseconds, FALSE - Advertise time
-                      configured in seconds";
-                  }
                   leaf advertisement-time-in-msec {
                     type uint32 {
                       range "100..40950";
@@ -591,8 +577,8 @@ module Cisco-IOS-XR-ipv4-vrrp-cfg {
                     description "Advertisement time in seconds";
                   }
                   leaf forced {
-                    type boolean;
-                    default "false";
+                    type empty;
+                    units "millisecond";
                     description
                       "TRUE - Force configured timer values to
                       be used, required when configured in
@@ -747,6 +733,10 @@ module Cisco-IOS-XR-ipv4-vrrp-cfg {
           description "Interface name to configure";
         }
       }
+    }
+    leaf enable {
+      type empty;
+      description "Enable vrrp process";
     }
   }
 

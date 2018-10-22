@@ -47,6 +47,10 @@ module Cisco-IOS-XR-mpls-ldp-oper-datatypes {
         value 2;
         description "IPv6";
       }
+      enum all {
+        value 65535;
+        description "All";
+      }
     }
     description "Mpls ldp oper af name";
   }

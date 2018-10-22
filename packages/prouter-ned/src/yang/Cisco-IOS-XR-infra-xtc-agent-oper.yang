@@ -124,6 +124,11 @@ module Cisco-IOS-XR-infra-xtc-agent-oper {
       }
     }
 
+    container policy-summary {
+      description "Summary of all policies";
+      uses XTC-POLICY-SUMMARY-BAG;
+    }
+
     container on-demand-colors {
       description "On-Demand Color database in XTC Agent";
 

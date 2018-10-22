@@ -24,7 +24,7 @@ module Cisco-IOS-XR-ipv4-bgp-act {
     "This module contains a collection of YANG definitions
      for Cisco IOS-XR action package configuration.
 
-     Copyright (c) 2016-2017 by Cisco Systems, Inc.
+     Copyright (c) 2016-2018 by Cisco Systems, Inc.
      All rights reserved.";
 
   revision "2016-10-12" {
@@ -11925,6 +11925,124 @@ module Cisco-IOS-XR-ipv4-bgp-act {
       "Specify a VRF.
        Clear all peers and all routes from the BGP table.
        Clear with a hard reset and a graceful restart.
+      ";
+    input {
+      leaf vrf-all {
+        mandatory true;
+        type vrf-name;
+        description "VRF name or all";
+      }
+    }
+  }
+
+  rpc clear-bgp-instance-vrf-rpki-validation-ipv4 {
+    csc:xr-task "bgp";
+    csc:cli-command "clear bgp instance <instance-name> vrf <vrf-all> rpki validation ipv4";
+    description
+      "Choose a particular BGP instance and VRF.
+       RPKI clear command.
+       clear RPKI origin-validation (trigger origin validation).
+       trigger origin validation walk for the IPv4 table.
+      ";
+    input {
+      leaf instance-name {
+        mandatory true;
+        type instance-name;
+        description "instance name or all";
+      }
+      leaf vrf-all {
+        mandatory true;
+        type vrf-name;
+        description "VRF name or all";
+      }
+    }
+  }
+
+  rpc clear-bgp-instance-vrf-rpki-validation-ipv6 {
+    csc:xr-task "bgp";
+    csc:cli-command "clear bgp instance <instance-name> vrf <vrf-all> rpki validation ipv6";
+    description
+      "Choose a particular BGP instance and VRF.
+       RPKI clear command.
+       clear RPKI origin-validation (trigger origin validation).
+       trigger origin validation walk for the IPv6 table.
+      ";
+    input {
+      leaf instance-name {
+        mandatory true;
+        type instance-name;
+        description "instance name or all";
+      }
+      leaf vrf-all {
+        mandatory true;
+        type vrf-name;
+        description "VRF name or all";
+      }
+    }
+  }
+
+  rpc clear-bgp-instance-vrf-rpki-validation {
+    csc:xr-task "bgp";
+    csc:cli-command "clear bgp instance <instance-name> vrf <vrf-all> rpki validation";
+    description
+      "Choose a particular BGP instance and VRF.
+       RPKI clear command.
+       clear RPKI origin-validation (trigger origin validation).
+      ";
+    input {
+      leaf instance-name {
+        mandatory true;
+        type instance-name;
+        description "instance name or all";
+      }
+      leaf vrf-all {
+        mandatory true;
+        type vrf-name;
+        description "VRF name or all";
+      }
+    }
+  }
+
+  rpc clear-bgp-vrf-rpki-validation-ipv4 {
+    csc:xr-task "bgp";
+    csc:cli-command "clear bgp vrf <vrf-all> rpki validation ipv4";
+    description
+      "RPKI clear command.
+       clear RPKI origin-validation (trigger origin validation).
+       trigger origin validation walk for the IPv4 table.
+      ";
+    input {
+      leaf vrf-all {
+        mandatory true;
+        type vrf-name;
+        description "VRF name or all";
+      }
+    }
+  }
+
+  rpc clear-bgp-vrf-rpki-validation-ipv6 {
+    csc:xr-task "bgp";
+    csc:cli-command "clear bgp vrf <vrf-all> rpki validation ipv6";
+    description
+      "RPKI clear command.
+       clear RPKI origin-validation (trigger origin validation).
+       trigger origin validation walk for the IPv6 table.
+      ";
+    input {
+      leaf vrf-all {
+        mandatory true;
+        type vrf-name;
+        description "VRF name or all";
+      }
+    }
+  }
+
+  rpc clear-bgp-vrf-rpki-validation {
+    csc:xr-task "bgp";
+    csc:cli-command "clear bgp vrf <vrf-all> rpki validation";
+    description
+      "RPKI clear command.
+       clear RPKI origin-validation (trigger origin validation).
       ";
     input {
       leaf vrf-all {

@@ -48,95 +48,86 @@ submodule Cisco-IOS-XR-mpls-te-oper-sub3 {
   typedef Tp-link-state {
     type enumeration {
       enum down {
-        description "TP link state is down";
+        description "Deprecated";
       }
       enum admin-down {
-        description "TP link state is administratively down";
+        description "Deprecated";
       }
       enum up {
-        description "TP link state is up";
+        description "Deprecated";
       }
       enum unknown {
-        description "TP link state is unknown";
+        description "Deprecated";
       }
     }
-    description "Transport profile link state";
+    description "Deprecated";
   }
 
   grouping MPLS-TE-TP-LINK-INFO {
-    description "Transport profile link information";
+    description "Deprecated";
     leaf link-id {
       type uint32;
-      description "Transport profile link identifier";
+      description "Deprecated";
     }
     leaf interface {
       type string;
-      description "Transport profile link interface name";
+      description "Deprecated";
     }
     leaf next-hop-address {
       type inet:ipv4-address;
-      description
-        "Transport profile next-hop in IPv4 address
-        format";
+      description "Deprecated";
     }
     leaf link-state {
       type Tp-link-state;
-      description "Link state";
+      description "Deprecated";
     }
     leaf available-bandwidth {
       type uint64;
-      units "kbit/s";
-      description "Available bandwidth in Kbps";
+      description "Deprecated";
     }
   }
 
   grouping MPLS-TE-TP-LINK-SUMMARY-INFO {
-    description "Transport profile link summary";
+    description "Deprecated";
     leaf links {
       type uint32;
-      description "Number of transport profile links";
+      description "Deprecated";
     }
   }
 
   grouping MPLS-TE-TP-DETAIL-LINK-INFO {
-    description "Transport profile link detail information";
+    description "Deprecated";
     leaf link-id {
       type uint32;
-      description "Transport profile link identifier";
+      description "Deprecated";
     }
     leaf interface {
       type string;
-      description "Transport profile link interface name";
+      description "Deprecated";
     }
     leaf next-hop-address {
       type inet:ipv4-address;
-      description
-        "Transport profile next-hop in IPv4 address
-        format";
+      description "Deprecated";
     }
     leaf link-state {
       type Tp-link-state;
-      description "Link State";
+      description "Deprecated";
     }
     leaf ls-ps {
       type uint32;
-      description "Number of TP LSPs on this TP link";
+      description "Deprecated";
     }
     leaf reserved-bandwidth {
       type uint64;
-      units "kbit/s";
-      description "Reserved bandwidth in Kbps";
+      description "Deprecated";
     }
     leaf available-bandwidth {
       type uint64;
-      units "kbit/s";
-      description "Available bandwidth in Kbps";
+      description "Deprecated";
     }
     leaf unsupported-linecard {
       type boolean;
-      description
-        "Link is hosted on a linecard that does not
-        support MPLS-TP";
+      description "Deprecated";
     }
   }
 }

@@ -39,6 +39,11 @@ module Cisco-IOS-XR-infra-xtc-cfg {
      Copyright (c) 2013-2018 by Cisco Systems, Inc.
      All rights reserved.";
 
+  revision "2018-07-02" {
+    description
+      "Removed mandatory specification from Netconf SSH username/password";
+  }
+
   revision "2017-09-30" {
     description
       "Ensure propagation of MDA mandatory state to YANG model.";
@@ -158,6 +163,19 @@ module Cisco-IOS-XR-infra-xtc-cfg {
     }
     description "Pce metric";
   }
+  typedef Pcerest-authentication {
+    type enumeration {
+      enum basic {
+        value 1;
+        description "Basic HTTP auth";
+      }
+      enum digest {
+        value 2;
+        description "MD5-Digest HTTP auth";
+      }
+    }
+    description "Pcerest authentication";
+  }
   typedef Pce-explicit-path-hop {
     type enumeration {
       enum address {
@@ -183,7 +201,8 @@ module Cisco-IOS-XR-infra-xtc-cfg {
   grouping ENABLE {
     description
       "Common node of pce, lsp-name, disjoint-path,
-      group, rsvp-te, explicit-path, pcc-address";
+      group, rsvp-te, explicit-path, pcc-address, rest,
+      rest-user, netconf";
     leaf enable {
       type empty;
       description "True only";
@@ -334,6 +353,36 @@ module Cisco-IOS-XR-infra-xtc-cfg {
         default "2";
         description "Backoff common difference configuration";
       }
+    }
+
+    container rest {
+      presence "Indicates a rest node is configured.";
+      description "REST configuration";
+
+      container rest-users {
+        description "REST authorized users configuration";
+
+        list rest-user {
+          key "name";
+          description "REST authorized user";
+          leaf rest-user-password {
+            type xr:Proprietary-password;
+            mandatory true;
+            description "REST user password configuration";
+          }
+          leaf name {
+            type xr:Cisco-ios-xr-string;
+            description "User name";
+          }
+          uses ENABLE;
+        }
+      }
+      leaf rest-authentication {
+        type Pcerest-authentication;
+        mandatory true;
+        description "REST authentication type";
+      }
+      uses ENABLE;
     }
 
     container state-syncs {
@@ -650,20 +699,18 @@ module Cisco-IOS-XR-infra-xtc-cfg {
       description "NETCONF configuration";
 
       container netconf-ssh {
-        presence "Indicates a netconf-ssh node is configured.";
         description "NETCONF SSH configuration";
         leaf netconf-ssh-password {
           type xr:Proprietary-password;
-          mandatory true;
           description "Password to use for NETCONF SSH connections";
         }
         leaf netconf-ssh-user {
           type string;
-          mandatory true;
           description
             "User name to use for NETCONF SSH connections";
         }
       }
+      uses ENABLE;
     }
 
     container disjoint-path {

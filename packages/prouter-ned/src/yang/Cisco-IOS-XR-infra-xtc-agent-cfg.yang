@@ -42,6 +42,16 @@ module Cisco-IOS-XR-infra-xtc-agent-cfg {
      Copyright (c) 2013-2018 by Cisco Systems, Inc.
      All rights reserved.";
 
+  revision "2018-07-07" {
+    description
+      "Modified the allowed range for policy path weight.";
+  }
+
+  revision "2018-07-03" {
+    description
+      "Added TE-latency algorithm configuration.";
+  }
+
   revision "2018-01-31" {
     description
       "Added BW configuration option for On Demand Color policy.";
@@ -272,6 +282,7 @@ module Cisco-IOS-XR-infra-xtc-agent-cfg {
   augment "/a1:sr" {
 
     container traffic-engineering {
+      presence "Indicates a traffic-engineering node is configured.";
       description "Traffic Engineering configuration data";
 
       container on-demand-colors {
@@ -282,6 +293,8 @@ module Cisco-IOS-XR-infra-xtc-agent-cfg {
           description "On-demand color configuration";
 
           container on-demand-color-dyn-mpls {
+            presence "Indicates a on-demand-color-dyn-mpls node is"+
+              " configured.";
             description "Dynamic MPLS path properties";
 
             container on-demand-color-dyn-mpls-metric {
@@ -329,6 +342,13 @@ module Cisco-IOS-XR-infra-xtc-agent-cfg {
                 }
                 description "Sub ID";
               }
+            }
+            leaf on-demand-color-dyn-mpls-flex-algorithm {
+              type uint32 {
+                range "128..255";
+              }
+              mandatory true;
+              description "Prefix-SID algorithm";
             }
             leaf enable {
               type empty;
@@ -594,6 +614,21 @@ module Cisco-IOS-XR-infra-xtc-agent-cfg {
                     }
                   }
 
+                  container segment-rules {
+                    presence "Indicates a segment-rules node is"+
+                      " configured.";
+                    description
+                      "SR path computation segment specific
+                      rules";
+                    leaf sid-algorithm {
+                      type uint32 {
+                        range "128..255";
+                      }
+                      mandatory true;
+                      description "Prefix-SID algorithm";
+                    }
+                  }
+
                   container affinity-rules {
                     description
                       "SR path computation and verification
@@ -681,7 +716,9 @@ module Cisco-IOS-XR-infra-xtc-agent-cfg {
                       uses ENABLE;
                     }
                     leaf weight {
-                      type uint32;
+                      type uint32 {
+                        range "1..4294967295";
+                      }
                       description "Path-option weight";
                     }
                     leaf type {
@@ -934,6 +971,17 @@ module Cisco-IOS-XR-infra-xtc-agent-cfg {
             description "Affinity-map bit-position";
           }
         }
+      }
+      leaf te-latency {
+        type empty;
+        description "Use TE-latency algorithm";
+      }
+      leaf maximum-sid-depth {
+        type uint32 {
+          range "1..255";
+        }
+        mandatory true;
+        description "Maximum SID Depth Configuration";
       }
       uses ENABLE;
     }

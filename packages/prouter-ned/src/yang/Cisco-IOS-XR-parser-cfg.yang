@@ -147,6 +147,14 @@ module Cisco-IOS-XR-parser-cfg {
       }
     }
 
+    container sysadmin-login-banner {
+      description "Configuration to disable sysadmin login banner";
+      leaf sysadmin-login-banner-disable {
+        type boolean;
+        description "Disable sysadmin login banner";
+      }
+    }
+
     container interface-display {
       description "Configure the Interface display order";
       leaf slot-order {

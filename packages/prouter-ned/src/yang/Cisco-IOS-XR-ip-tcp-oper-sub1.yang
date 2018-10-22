@@ -135,7 +135,7 @@ submodule Cisco-IOS-XR-ip-tcp-oper-sub1 {
         description "Internetwork: UDP, TCP, etc.";
       }
       enum ip-version6 {
-        value 26;
+        value 10;
         description "IP version 6";
       }
     }

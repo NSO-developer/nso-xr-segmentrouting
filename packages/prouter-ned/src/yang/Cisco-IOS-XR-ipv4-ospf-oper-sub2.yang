@@ -568,12 +568,16 @@ submodule Cisco-IOS-XR-ipv4-ospf-oper-sub2 {
         value 6;
         description "SRLG disjoint";
       }
-      enum tunnel {
+      enum interface-disjoint {
         value 7;
+        description "Interface disjoint";
+      }
+      enum tunnel {
+        value 8;
         description "Tunnel";
       }
       enum post-convergence {
-        value 8;
+        value 9;
         description "Post Convergence";
       }
     }

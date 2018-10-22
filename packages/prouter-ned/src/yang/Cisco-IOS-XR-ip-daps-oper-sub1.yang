@@ -85,7 +85,7 @@ submodule Cisco-IOS-XR-ip-daps-oper-sub1 {
         description "IPv4 address";
       }
       enum ipv6 {
-        value 26;
+        value 10;
         description "IPv6 address";
       }
     }

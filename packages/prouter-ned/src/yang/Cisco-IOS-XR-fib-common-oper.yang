@@ -512,11 +512,18 @@ module Cisco-IOS-XR-fib-common-oper {
                     description "Local (non-remote) nhinfo";
 
                     list nh-info-local-detail-hardware-egress {
-                      description
-                        "Detail hardware egress NHinfo entry";
+                      description "Detail NHinfo entry";
                       leaf nh-interface-name {
                         type xr:Interface-name;
                         description "Interface Name";
+                      }
+                      leaf nh-proto {
+                        type Fib-protocol;
+                        description "Next-hop proto";
+                      }
+                      leaf nh-pfx-length {
+                        type uint32;
+                        description "Next-hop prefix length";
                       }
                       leaf nh-address {
                         type xr:Cisco-ios-xr-string;
@@ -534,12 +541,18 @@ module Cisco-IOS-XR-fib-common-oper {
                       NHInfo table";
 
                     list nh-info-remote-detail-hardware-egress {
-                      description
-                        "Detail hardware egress info for NHinfo
-                        entry";
+                      description "Detail NHinfo entry";
                       leaf nh-interface-name {
                         type xr:Interface-name;
                         description "Interface Name";
+                      }
+                      leaf nh-proto {
+                        type Fib-protocol;
+                        description "Next-hop proto";
+                      }
+                      leaf nh-pfx-length {
+                        type uint32;
+                        description "Next-hop prefix length";
                       }
                       leaf nh-address {
                         type xr:Cisco-ios-xr-string;
@@ -582,6 +595,14 @@ module Cisco-IOS-XR-fib-common-oper {
                         type xr:Interface-name;
                         description "Interface Name";
                       }
+                      leaf nh-proto {
+                        type Fib-protocol;
+                        description "Next-hop proto";
+                      }
+                      leaf nh-pfx-length {
+                        type uint32;
+                        description "Next-hop prefix length";
+                      }
                       leaf nh-address {
                         type xr:Cisco-ios-xr-string;
                         description
@@ -623,10 +644,18 @@ module Cisco-IOS-XR-fib-common-oper {
                     description "Detailed Remote NHInfo table";
 
                     list nh-info-remote-detail {
-                      description "Detailed remote NHinfo entry";
+                      description "Detail NHinfo entry";
                       leaf nh-interface-name {
                         type xr:Interface-name;
                         description "Interface Name";
+                      }
+                      leaf nh-proto {
+                        type Fib-protocol;
+                        description "Next-hop proto";
+                      }
+                      leaf nh-pfx-length {
+                        type uint32;
+                        description "Next-hop prefix length";
                       }
                       leaf nh-address {
                         type xr:Cisco-ios-xr-string;
@@ -699,12 +728,18 @@ module Cisco-IOS-XR-fib-common-oper {
                       NHInfo table";
 
                     list nh-info-remote-detail-hardware-ingress {
-                      description
-                        "Detail hardware ingress info for remote
-                        NHinfo entry";
+                      description "Detail NHinfo entry";
                       leaf nh-interface-name {
                         type xr:Interface-name;
                         description "Interface Name";
+                      }
+                      leaf nh-proto {
+                        type Fib-protocol;
+                        description "Next-hop proto";
+                      }
+                      leaf nh-pfx-length {
+                        type uint32;
+                        description "Next-hop prefix length";
                       }
                       leaf nh-address {
                         type xr:Cisco-ios-xr-string;
@@ -720,11 +755,18 @@ module Cisco-IOS-XR-fib-common-oper {
                     description "Local (non-remote) nhinfo";
 
                     list nh-info-local-detail-hardware-ingress {
-                      description
-                        "Detail hardware ingress NHinfo entry";
+                      description "Detail NHinfo entry";
                       leaf nh-interface-name {
                         type xr:Interface-name;
                         description "Interface Name";
+                      }
+                      leaf nh-proto {
+                        type Fib-protocol;
+                        description "Next-hop proto";
+                      }
+                      leaf nh-pfx-length {
+                        type uint32;
+                        description "Next-hop prefix length";
                       }
                       leaf nh-address {
                         type xr:Cisco-ios-xr-string;
@@ -807,10 +849,18 @@ module Cisco-IOS-XR-fib-common-oper {
                     description "remote nhinfo";
 
                     list nh-info-remote-brief {
-                      description "Brief remote NHinfo entry";
+                      description "Detail NHinfo entry";
                       leaf nh-interface-name {
                         type xr:Interface-name;
                         description "Interface Name";
+                      }
+                      leaf nh-proto {
+                        type Fib-protocol;
+                        description "Next-hop proto";
+                      }
+                      leaf nh-pfx-length {
+                        type uint32;
+                        description "Next-hop prefix length";
                       }
                       leaf nh-address {
                         type xr:Cisco-ios-xr-string;
@@ -829,6 +879,14 @@ module Cisco-IOS-XR-fib-common-oper {
                       leaf nh-interface-name {
                         type xr:Interface-name;
                         description "Interface Name";
+                      }
+                      leaf nh-proto {
+                        type Fib-protocol;
+                        description "Next-hop proto";
+                      }
+                      leaf nh-pfx-length {
+                        type uint32;
+                        description "Next-hop prefix length";
                       }
                       leaf nh-address {
                         type xr:Cisco-ios-xr-string;
