@@ -48,7 +48,7 @@ cli:
 
 packages:
 
-	(for i in $(PACKAGES); do \
+	(for i in $(REMOTE_PACKAGES) $(PACKAGES); do \
 	        $(MAKE) -C packages/$${i}/src all || exit 1; \
 	done)
 
