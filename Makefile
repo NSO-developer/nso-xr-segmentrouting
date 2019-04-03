@@ -6,7 +6,8 @@ PACKAGES = prouter-ned \
 	sr-ms \
 	ti-lfa \
 	disable-ldp \
-	drain
+	drain \
+	sr-demo
 
 # Packages that are not version controlled, i.e. not local
 REMOTE_PACKAGES = resource-manager
