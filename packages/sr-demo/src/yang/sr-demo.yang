@@ -1,0 +1,204 @@
+module sr-demo {
+
+  namespace "http://example.com/sr-demo";
+  prefix sr-demo;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import tailf-common {
+    prefix tailf;
+  }
+  import tailf-ncs {
+    prefix ncs;
+  }
+
+  import cf-common {
+    prefix cfcommon;
+  }
+
+  description
+    "Bla bla...";
+
+  revision 2016-01-01 {
+    description
+      "Initial revision.";
+  }
+
+  identity sr-migration-router {
+    base ncs:plan-component-type;
+  }
+  identity segment-routing-enabled {
+    base ncs:plan-state;
+  }
+  identity ti-lfa-enabled {
+    base ncs:plan-state;
+  }
+  identity mapping-server-enabled {
+    base ncs:plan-state;
+  }
+  identity ldp-disabled {
+    base ncs:plan-state;
+  }
+
+  list sr-demo {
+    description "This is an RFS skeleton service";
+
+    key name;
+    leaf name {
+      tailf:info "Unique service id";
+      tailf:cli-allow-range;
+      type string;
+    }
+
+    leaf enable-segment-routing {
+      type boolean;
+      default true;
+    }
+
+    leaf enable-ti-lfa {
+      type boolean;
+    }
+
+    leaf enable-mapping-servers {
+      type boolean;
+    }
+
+    leaf disable-ldp {
+      type boolean;
+    }
+
+    leaf address-family {
+      tailf:info "ISIS Address Family for TI-LFA. Possible values ipv4 or ipv6";
+      type enumeration {
+        enum ipv4;
+        enum ipv6;
+      }
+      default ipv4;
+    }
+
+    container mapping-server {
+      leaf ipv4-address {
+        tailf:info "Starting IPv4 address";
+        type inet:ipv4-address;
+      }
+
+      leaf prefix-length {
+        tailf:info "prefix-length";
+        type uint16 {
+          range "0..32";
+        }
+      }
+
+      leaf first-sid-value {
+        tailf:info "start of sid index range";
+        type uint32 {
+          range "0..1048575";
+        }
+      }
+
+      leaf number-of-allocated-sids {
+        tailf:info "number of allocated sids";
+        type uint32 {
+          range "0..1048575";
+        }
+      }
+    }
+
+    uses ncs:plan-data;
+    uses ncs:service-data;
+    ncs:servicepoint sr-demo-servicepoint;
+
+    list router {
+      tailf:info "Core P Router Device Node List";
+
+      key device-name;
+      leaf device-name{
+        tailf:info "Pick a Core P Router to be configured";
+        type leafref {
+          path "/ncs:devices/ncs:device/ncs:name";
+        }
+      }
+
+      leaf auto-assign-prefix {
+        type boolean;
+        default true;
+      }
+
+      leaf assign-prefix-sid {
+        when "../auto-assign-prefix = 'false'";
+        mandatory true;
+        tailf:info "Assign a non used prefix-sid between the allowed range 16000 to 23999 to a device";
+        type uint16 {
+          tailf:info "Pick a non used prefix-sid between the allowed range 16000 to 23999";
+          range "16000..23999";
+        }
+      }
+
+      leaf use-sr-infrastructure {
+        type boolean;
+        default true;
+      }
+
+      leaf custom-instance-name {
+        when "../use-sr-infrastructure = 'false'";
+        mandatory true;
+        tailf:info "ISIS instance name";
+        type string;
+      }
+
+      leaf custom-instance-loopback {
+        when "../use-sr-infrastructure = 'false'";
+        tailf:info "IS-IS loopback for prefix-sid";
+        type uint32 {
+           range "0..2147483647";
+        }
+        default 0;
+      }
+
+      leaf sr-mpls-preference {
+        type enumeration {
+          enum sr-mpls;
+          enum sr-prefer;
+        }
+        default sr-mpls;
+      }
+
+      leaf configure-all-interfaces {
+        type boolean;
+        default true;
+      }
+
+      container interfaces {
+        when "../configure-all-interfaces = 'false'" {
+          tailf:dependency "../configure-all-interfaces";
+        }
+        must "count(interface) > 0" {
+          error-message "At least 1 interface must be selected";
+        }
+        tailf:info "Name the interfaces to apply ti-fla configuration";
+        list interface {
+          key "interface-type interface-id";
+
+          leaf interface-type {
+            tailf:info "Interface Type";
+            type cfcommon:int-type;
+          }
+
+          leaf interface-id {
+            when "../interface-type!=''";
+            tailf:info " Interface ID";
+            mandatory true;
+            type cfcommon:int-id;
+          }
+        }
+      }
+
+      leaf is-mapping-server {
+        type boolean;
+        default false;
+      }
+
+    }
+  }
+}

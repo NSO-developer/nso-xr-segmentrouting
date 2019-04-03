@@ -1,0 +1,30 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <services xmlns="http://tail-f.com/ns/ncs">
+
+  <!-- Enable Segment Routing -->
+  <sr xmlns="http://cisco.com/tailf/sr" when="{../enable-segment-routing = 'true'}">
+    <name>{string(../name)}</name>
+    <router>
+      <device-name>{device-name}</device-name>
+      <prefix-preference>
+        <auto-assign-prefix-sid when="{auto-assign-prefix = 'true'}"/>
+        <assign-prefix-sid when="{auto-assign-prefix = 'false'}">
+          {assign-prefix-sid}
+        </assign-prefix-sid>
+      </prefix-preference>
+      <instance-preference>
+        <use-sr-infrastructure when="{use-sr-infrastructure = 'true'}"/>
+        <custom-instance when="{use-sr-infrastructure = 'false'}">
+          <instance-name>{custom-instance-name}</instance-name>
+          <loopback>{custom-instance-loopback}</loopback>
+        </custom-instance>
+      </instance-preference>
+      <sr-mpls-preference>
+        <sr-mpls when="{sr-mpls-preference = 'sr-mpls'}"/>
+        <sr-prefer when="{sr-mpls-preference = 'sr-prefer'}"/>
+      </sr-mpls-preference>
+    </router>
+  </sr>
+
+  </services>
+</config-template>

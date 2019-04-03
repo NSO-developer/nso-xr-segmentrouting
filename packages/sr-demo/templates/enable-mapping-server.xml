@@ -1,0 +1,27 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <services xmlns="http://tail-f.com/ns/ncs">
+
+  <!-- Enable Mapping Servers -->
+  <sr-ms xmlns="http://com/example/srms"
+         when="{../enable-mapping-servers = 'true'}">
+    <name>{string(../name)}</name>
+    <router when="{is-mapping-server = 'true'}">
+      <device-name>{device-name}</device-name>
+      <instance-name-preference>
+        <use-sr-infrastructure when="{use-sr-infrastructure = 'true'}"/>
+        <custom-instance when="{use-sr-infrastructure = 'false'}">
+          <instance-name>{custom-instance-name}</instance-name>
+        </custom-instance>
+      </instance-name-preference>
+      <address-family>{../address-family}</address-family>
+      <ipv4-address>{../mapping-server/ipv4-address}</ipv4-address>
+      <prefix-length>{../mapping-server/prefix-length}</prefix-length>
+      <first-sid-value>{../mapping-server/first-sid-value}</first-sid-value>
+      <number-of-allocated-sids>
+        {../mapping-server/number-of-allocated-sids}
+      </number-of-allocated-sids>
+    </router>
+  </sr-ms>
+
+  </services>
+</config-template>
