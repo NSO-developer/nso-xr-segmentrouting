@@ -1,43 +1,86 @@
-<config-template xmlns="http://tail-f.com/ns/config/1.0">
+<config-template xmlns="http://tail-f.com/ns/config/1.0"
+                 servicepoint="tilfa-servicepoint">
   <devices xmlns="http://tail-f.com/ns/ncs">
-    <device>
-      <name>{$DEVICE}</name>
+    <device foreach="{router}">
+      <name>{device-name}</name>
       <config>
-	<isis xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-clns-isis-cfg">
-	  <instances>
-	    <instance>
-              <instance-name>{$INSTANCE-NAME}</instance-name>
-	      <interfaces>
-		<interface>
-		  <interface-name>{$INTERFACE-NAME}{$INTERFACE-ID}</interface-name>
-		  <interface-afs>
-		    <interface-af>
-                      <af-name>{$ADDRESS-FAMILY}</af-name>
+        <isis xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-clns-isis-cfg">
+
+          <?set INSTANCE = {../../../cfinfra:sr-infrastructure/instance-name}?>
+          <?if {instance-name-preference/custom-instance}?>
+            <?set INSTANCE = {
+              instance-name-preference/custom-instance/instance-name}?>
+          <?end?>
+
+          <instances>
+            <instance>
+              <instance-name>{$INSTANCE}</instance-name>
+              <interfaces>
+
+                <!-- All Interfaces -->
+                <interface when="{interface-preference/all-interfaces}"
+                           foreach="{deref(device-name)/../config
+                                    /clns-isis-cfg:isis/instances
+                                    /instance[instance-name=$INSTANCE]
+                                    /interfaces/interface}">
+                  <interface-name>{interface-name}</interface-name>
+                  <interface-afs>
+                    <interface-af>
+                      <af-name>{/address-family}</af-name>
                       <saf-name>unicast</saf-name>
                       <interface-af-data>
-			<interface-frr-table>
-			  <frrtilfa-types>
+                        <interface-frr-table>
+                          <frrtilfa-types>
                             <frrtilfa-type>
                               <level>not-set</level>
                             </frrtilfa-type>
                           </frrtilfa-types>
-			  <frr-types>
-			    <frr-type>
+                          <frr-types>
+                            <frr-type>
                               <level>not-set</level>
-			      <type>per-prefix</type>
-			    </frr-type>
-			  </frr-types>
-			</interface-frr-table>
+                              <type>per-prefix</type>
+                            </frr-type>
+                          </frr-types>
+                        </interface-frr-table>
                       </interface-af-data>
-		    </interface-af>
-		  </interface-afs>
-		  <running/>
-		</interface>
+                    </interface-af>
+                  </interface-afs>
+                  <running/>
+                </interface>
+
+                <!-- Select Interfaces -->
+                <interface when="{interface-preference/select-interface}"
+                           foreach="{interface-preference/select-interface}">
+                  <interface-name>{interface-type}{interface-id}</interface-name>
+                  <interface-afs>
+                    <interface-af>
+                      <af-name>{/address-family}</af-name>
+                      <saf-name>unicast</saf-name>
+                      <interface-af-data>
+                        <interface-frr-table>
+                          <frrtilfa-types>
+                            <frrtilfa-type>
+                              <level>not-set</level>
+                            </frrtilfa-type>
+                          </frrtilfa-types>
+                          <frr-types>
+                            <frr-type>
+                              <level>not-set</level>
+                              <type>per-prefix</type>
+                            </frr-type>
+                          </frr-types>
+                        </interface-frr-table>
+                      </interface-af-data>
+                    </interface-af>
+                  </interface-afs>
+                  <running/>
+                </interface>
+
               </interfaces>
-	      <running/>
-	    </instance>
-	  </instances>
-	</isis>
+              <running/>
+            </instance>
+          </instances>
+        </isis>
       </config>
     </device>
   </devices>

@@ -11,10 +11,4 @@
   <!-- It's possible to add more components to the -->
   <!-- same package, multiple services, data providers etc -->
 
-  <component>
-    <name>RFSSkeleton</name>
-    <callback>
-      <java-class-name>com.cisco.tifla.tiflaRFS</java-class-name>
-    </callback>
-  </component>
 </ncs-package>
