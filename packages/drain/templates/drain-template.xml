@@ -1,18 +1,26 @@
-<config-template xmlns="http://tail-f.com/ns/config/1.0">
+<config-template xmlns="http://tail-f.com/ns/config/1.0"
+                 servicepoint="drain-servicepoint">
   <devices xmlns="http://tail-f.com/ns/ncs">
-  <device>
-    <name>{$DEVICE}</name>
+  <device foreach="{router}">
+    <name>{device-name}</name>
     <config>
       <isis xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-clns-isis-cfg">
+
+        <?set INSTANCE = {../../../cfinfra:sr-infrastructure/instance-name}?>
+        <?if {instance-name-preference/custom-instance}?>
+          <?set INSTANCE = {
+            instance-name-preference/custom-instance/instance-name}?>
+        <?end?>
+
         <instances>
           <instance>
-            <instance-name>{$INSTANCE-NAME}</instance-name>
+            <instance-name>{$INSTANCE}</instance-name>
             <overload-bits>
-	      <overload-bit>
+              <overload-bit>
                 <level>not-set</level>
               </overload-bit>
             </overload-bits>
-	    <running/>
+            <running/>
           </instance>
         </instances>
       </isis>
