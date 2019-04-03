@@ -1,60 +1,66 @@
 <config-template xmlns="http://tail-f.com/ns/config/1.0">
   <devices xmlns="http://tail-f.com/ns/ncs">
     <device>
-      <name>{$DEVICENAME}</name>
+      <name>{device-name}</name>
       <config>
         <isis xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-clns-isis-cfg">
+
+          <?set-root-node {/}?>
+          <?set INSTANCE = {/cfinfra:sr-infrastructure/instance-name}?>
+          <?set LOOPBACK = {/cfinfra:sr-infrastructure/loopback}?>
+
+          <?if {instance-preference/custom-instance}?>
+            <?set INSTANCE = {instance-preference/custom-instance/instance-name}?>
+            <?set LOOPBACK = {instance-preference/custom-instance/loopback}?>
+          <?end?>
+
           <instances>
             <instance>
-              <instance-name>{$INSTANCE-NAME}</instance-name>
-                <srgb>
-                  <lower-bound>{$SRGB-START}</lower-bound>
-                  <upper-bound>{$SRGB-END}</upper-bound>
-                </srgb>
-                <afs>
-                 <af>
+              <instance-name>{$INSTANCE}</instance-name>
+              <afs>
+                <af>
                   <af-name>ipv4</af-name>
                   <saf-name>unicast</saf-name>
                   <af-data>
                     <segment-routing>
-		      <mpls>{$TYPE}</mpls>
+                      <mpls when="{sr-mpls-preference/sr-prefer}"
+                        >segment-routing</mpls>
+                      <mpls when="{sr-mpls-preference/sr-mpls}">ldp</mpls>
                     </segment-routing>
-                    <!-- <mpls>
-                      <router-id>
-                        <interface-name>Loopback{$LOOPBACK}</interface-name>
-                      </router-id>
-                      <level>
-                        <level2>true</level2>
-                      </level>
-                    </mpls> -->
                   </af-data>
                 </af>
-                </afs>
-		<interfaces>
-		  <interface>
-		    <interface-name>Loopback{$LOOPBACK}</interface-name>
-		    <interface-afs>
-		      <interface-af>
-			<af-name>ipv4</af-name>
-			<saf-name>unicast</saf-name>
-			<interface-af-data>
-			  <prefix-sid>
-			    <type>absolute</type>
-			    <value>{$PREFIX-SID}</value>
-			    <php>enable</php>
-			    <explicit-null>disable</explicit-null>
-			    <nflag-clear>disable</nflag-clear>
-			  </prefix-sid>
-			</interface-af-data>
-		      </interface-af>
-		    </interface-afs>
-		    <running/>
-		  </interface>
-		</interfaces>
-		<running/>
-	    </instance>
+              </afs>
+              <srgb>
+                <?set-context-node {deref(/cfinfra:sr-infrastructure
+                  /sr-global-block-pools[1]/name)/../range}?>
+                <lower-bound>{start}</lower-bound>
+                <upper-bound>{end}</upper-bound>
+              </srgb>
+              <interfaces>
+                <interface>
+                  <interface-name>Loopback{$LOOPBACK}</interface-name>
+                  <interface-afs>
+                    <interface-af>
+                      <af-name>ipv4</af-name>
+                      <saf-name>unicast</saf-name>
+                      <interface-af-data>
+                        <prefix-sid>
+                          <type>absolute</type>
+                          <value>{$PREFIX-SID}</value>
+                          <php>enable</php>
+                          <explicit-null>disable</explicit-null>
+                          <nflag-clear>disable</nflag-clear>
+                        </prefix-sid>
+                      </interface-af-data>
+                    </interface-af>
+                  </interface-afs>
+                  <running/>
+                </interface>
+              </interfaces>
+              <running/>
+            </instance>
           </instances>
-	</isis>
+        </isis>
       </config>
     </device>
   </devices>

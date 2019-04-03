@@ -37,6 +37,7 @@ module sr {
       list sr {
        description "A List of User Defined Services for Segment Routing Configuration. These services could help differentaite across differnet zones,states or geological boundaries.";
        tailf:info "A List of User Defined Services for Segment Routing Configuration. These services could help differentaite across differnet zones,states or geological boundaries.";
+       uses ncs:plan-data;
        uses ncs:service-data;
        ncs:servicepoint "sr-servicepoint";
        key "name";
