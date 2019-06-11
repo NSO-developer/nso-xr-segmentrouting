@@ -1,0 +1,28 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <services xmlns="http://tail-f.com/ns/ncs">
+
+  <!-- Enable TI-LFA -->
+  <ti-lfa xmlns="http://com/example/tilfa" when="{../enable-ti-lfa = 'true'}">
+    <name>{string(../name)}</name>
+    <address-family>{string(../address-family)}</address-family>
+    <router>
+      <device-name>{device-name}</device-name>
+      <instance-name-preference>
+        <use-sr-infrastructure when="{use-sr-infrastructure = 'true'}"/>
+        <custom-instance when="{use-sr-infrastructure = 'false'}">
+          <instance-name>{custom-instance-name}</instance-name>
+        </custom-instance>
+      </instance-name-preference>
+      <interface-preference>
+        <all-interfaces when="{configure-all-interfaces = 'true'}"/>
+        <select-interface when="{configure-all-interfaces = 'false'}"
+                          foreach="{interfaces/interface}">
+          <interface-type>{interface-type}</interface-type>
+          <interface-id>{interface-id}</interface-id>
+        </select-interface>
+      </interface-preference>
+    </router>
+  </ti-lfa>
+
+  </services>
+</config-template>

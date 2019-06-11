@@ -6,7 +6,8 @@ PACKAGES = prouter-ned \
 	sr-ms \
 	ti-lfa \
 	disable-ldp \
-	drain
+	drain \
+	sr-demo
 
 # Packages that are not version controlled, i.e. not local
 REMOTE_PACKAGES = resource-manager
@@ -48,7 +49,7 @@ cli:
 
 packages:
 
-	(for i in $(PACKAGES); do \
+	(for i in $(REMOTE_PACKAGES) $(PACKAGES); do \
 	        $(MAKE) -C packages/$${i}/src all || exit 1; \
 	done)
 

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <kickers xmlns="http://tail-f.com/ns/kicker">
+    <data-kicker>
+      <id>sr-plan-ready-{device-name}</id>
+      <monitor>/ncs:services/sr:sr[name='{../name}']/plan/component[name='{device-name}']/state[name='ncs:ready']</monitor>
+      <trigger-expr>status='reached'</trigger-expr>
+      <kick-node>/sr-demo:sr-demo[name='{../name}']</kick-node>
+      <action-name>reactive-re-deploy</action-name>
+    </data-kicker>
+  </kickers>
+</config-template>

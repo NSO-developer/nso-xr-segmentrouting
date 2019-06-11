@@ -1,0 +1,23 @@
+<config-template xmlns="http://tail-f.com/ns/config/1.0">
+  <devices xmlns="http://tail-f.com/ns/ncs">
+
+  <!-- Disable LDP -->
+  <device when="{../disable-ldp = 'true'}">
+    <name>{device-name}</name>
+    <config>
+      <mpls-ldp xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-mpls-ldp-cfg"
+                tags="nocreate">
+        <default-vrf tags="nocreate">
+          <interfaces>
+            <interface tags="delete" foreach="{deref(device-name)/../config
+                /mpls-ldp-cfg:mpls-ldp/default-vrf/interfaces/interface}">
+              <interface-name>{interface-name}</interface-name>
+            </interface>
+          </interfaces>
+        </default-vrf>
+      </mpls-ldp>
+    </config>
+  </device>
+
+  </devices>
+</config-template>
