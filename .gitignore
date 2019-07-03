@@ -1,6 +1,7 @@
 ncs-cdb
 netsim
 ncsc-out
+storedstate
 **/*.fxs
 **/namespaces/*
 **/load-dir/*

@@ -5,7 +5,7 @@ all: fxs
 include $(NCS_DIR)/src/ncs/build/include.ncs.mk
 
 SRC = $(wildcard yang/*.yang)
-DIRS = ../load-dir java/src/$(JDIR)/$(NS)
+DIRS = ../load-dir
 FXS = $(SRC:yang/%.yang=../load-dir/%.fxs)
 
 ## Uncomment and patch the line below if you have a dependency to a NED
@@ -13,7 +13,7 @@ FXS = $(SRC:yang/%.yang=../load-dir/%.fxs)
 # YANGPATH += ../../<ned-name>/src/ncsc-out/modules/yang \
 # 	../../<pkt-name>/src/yang
 YANGPATH +=	../../sr/src/yang \
-            ../../resource-manager/src/yang
+	          ../../resource-manager/src/yang
 
 NCSCPATH   = $(YANGPATH:%=--yangpath %)
 YANGERPATH = $(YANGPATH:%=--path %)
