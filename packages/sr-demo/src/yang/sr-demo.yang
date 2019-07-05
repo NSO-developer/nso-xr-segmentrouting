@@ -42,9 +42,9 @@ module sr-demo {
   }
 
   list sr-demo {
+    key name;
     description "This is an RFS skeleton service";
 
-    key name;
     leaf name {
       tailf:info "Unique service id";
       tailf:cli-allow-range;
@@ -81,6 +81,7 @@ module sr-demo {
       leaf ipv4-address {
         tailf:info "Starting IPv4 address";
         type inet:ipv4-address;
+        default "100.0.0.1";
       }
 
       leaf prefix-length {
@@ -88,6 +89,7 @@ module sr-demo {
         type uint16 {
           range "0..32";
         }
+        default 32;
       }
 
       leaf first-sid-value {
@@ -95,6 +97,7 @@ module sr-demo {
         type uint32 {
           range "0..1048575";
         }
+        default 25;
       }
 
       leaf number-of-allocated-sids {
@@ -102,6 +105,7 @@ module sr-demo {
         type uint32 {
           range "0..1048575";
         }
+        default 100;
       }
     }
 
@@ -126,13 +130,13 @@ module sr-demo {
       }
 
       leaf assign-prefix-sid {
-        when "../auto-assign-prefix = 'false'";
-        mandatory true;
         tailf:info "Assign a non used prefix-sid between the allowed range 16000 to 23999 to a device";
+        when "../auto-assign-prefix = 'false'";
         type uint16 {
           tailf:info "Pick a non used prefix-sid between the allowed range 16000 to 23999";
           range "16000..23999";
         }
+        mandatory true;
       }
 
       leaf use-sr-infrastructure {
@@ -141,15 +145,15 @@ module sr-demo {
       }
 
       leaf custom-instance-name {
-        when "../use-sr-infrastructure = 'false'";
-        mandatory true;
         tailf:info "ISIS instance name";
+        when "../use-sr-infrastructure = 'false'";
         type string;
+        mandatory true;
       }
 
       leaf custom-instance-loopback {
-        when "../use-sr-infrastructure = 'false'";
         tailf:info "IS-IS loopback for prefix-sid";
+        when "../use-sr-infrastructure = 'false'";
         type uint32 {
            range "0..2147483647";
         }
@@ -186,10 +190,9 @@ module sr-demo {
           }
 
           leaf interface-id {
-            when "../interface-type!=''";
             tailf:info " Interface ID";
-            mandatory true;
             type cfcommon:int-id;
+            mandatory true;
           }
         }
       }

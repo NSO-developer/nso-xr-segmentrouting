@@ -2,7 +2,6 @@
 import ncs
 from ncs.application import Service
 from ncs.application import PlanComponent
-from resource_manager import id_allocator
 
 # ------------------------
 # SERVICE CALLBACK EXAMPLE
@@ -24,7 +23,7 @@ class ServiceCallbacks(Service):
         for router in service.router:
 
             device_plan = PlanComponent(service, router.device_name,
-                'sr-demo:sr-migration-router')
+                                        'sr-demo:sr-migration-router')
             device_plan.append_state('ncs:init')
             device_plan.append_state('sr-demo:segment-routing-enabled')
             device_plan.append_state('sr-demo:ti-lfa-enabled')
@@ -42,7 +41,7 @@ class ServiceCallbacks(Service):
                 ready = False
 
                 with ncs.maapi.single_read_trans(tctx.username, 'python',
-                    db=ncs.OPERATIONAL) as th:
+                                                 db=ncs.OPERATIONAL) as th:
                     op_root = ncs.maagic.get_root(th)
 
                     if service.name in op_root.ncs__services.sr__sr:
@@ -55,7 +54,7 @@ class ServiceCallbacks(Service):
 
                 if not ready:
                     self.log.info('SR service router %s not ready' %
-                        router.device_name)
+                                  router.device_name)
                     continue
 
                 device_plan.set_reached('sr-demo:segment-routing-enabled')
