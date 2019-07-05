@@ -22,7 +22,8 @@
                            foreach="{deref(device-name)/../config
                                     /clns-isis-cfg:isis/instances
                                     /instance[instance-name=$INSTANCE]
-                                    /interfaces/interface}">
+                                    /interfaces/interface[not(starts-with(
+                                      interface-name, 'Loopback'))]}">
                   <interface-name>{interface-name}</interface-name>
                   <interface-afs>
                     <interface-af>

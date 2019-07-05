@@ -12,9 +12,9 @@
   <!-- same package, multiple services, data providers etc -->
 
   <component>
-    <name>RFSSkeleton</name>
-    <callback>
-      <java-class-name>com.cisco.sr.srRFS</java-class-name>
-    </callback>
+    <name>main</name>
+    <application>
+      <python-class-name>sr.main.Main</python-class-name>
+    </application>
   </component>
 </ncs-package>
